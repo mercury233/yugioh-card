@@ -1,4 +1,4 @@
-import { inheritProp } from '../../utils';
+import { inheritProp } from '../../utils/index.js';
 
 export default inheritProp({
   fontFamily: 'ygo-tc, 楷体, serif',

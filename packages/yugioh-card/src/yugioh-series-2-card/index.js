@@ -1,9 +1,9 @@
-import { Card } from '../card';
-import { Group, Image } from 'leafer-ui';
-import { CompressText } from 'leafer-compress-text';
-import jpStyle from './style/jp-style';
-import custom1Style from './style/custom1-style';
-import custom2Style from './style/custom2-style';
+import { Card } from '../card/index.js';
+import { Group, Image } from '@leafer-ui/node';
+import { CompressText } from '../compress-text/index.js';
+import jpStyle from './style/jp-style.js';
+import custom1Style from './style/custom1-style.js';
+import custom2Style from './style/custom2-style.js';
 
 export class YugiohSeries2Card extends Card {
   cardLeaf = null;

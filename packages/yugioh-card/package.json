@@ -3,6 +3,7 @@
   "version": "1.4.0",
   "main": "src/index.js",
   "module": "src/index.js",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/kooriookami/yugioh-card"
@@ -18,7 +19,9 @@
   "author": "kooriookami",
   "license": "ISC",
   "dependencies": {
-    "leafer-compress-text": "^1.2.0",
-    "leafer-ui": "^1.0.6"
+    "@leafer-ui/node": "^1.7.0",
+    "css-line-break": "^2.1.0",
+    "lodash": "^4.17.21",
+    "skia-canvas": "^2.0.2"
   }
 }

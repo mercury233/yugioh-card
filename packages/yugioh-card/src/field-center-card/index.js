@@ -1,5 +1,5 @@
-import { Card } from '../card';
-import { Image } from 'leafer-ui';
+import { Card } from '../card/index.js';
+import { Image } from '@leafer-ui/node';
 
 export class FieldCenterCard extends Card {
   cardLeaf = null;

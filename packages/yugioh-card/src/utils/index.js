@@ -1,10 +1,12 @@
 // 动态加载css
+/*
 export const loadCSS = url => {
   let css = document.createElement('link');
   css.href = url;
   css.rel = 'stylesheet';
   document.head.appendChild(css);
 };
+*/
 
 // 数字转全角
 export function numberToFull(value) {
