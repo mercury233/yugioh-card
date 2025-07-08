@@ -21,6 +21,7 @@
   "dependencies": {
     "@leafer-ui/node": "^1.7.0",
     "css-line-break": "^2.1.0",
+    "image-size": "^2.0.2",
     "lodash": "^4.17.21",
     "skia-canvas": "^2.0.2"
   }

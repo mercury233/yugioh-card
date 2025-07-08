@@ -31,7 +31,7 @@ export default inheritProp({
     fontSize: 46,
     lineHeight: 1.18,
     textIndent: -0.2 * 46,
-    minHeight: 16,
+    minHeight: 8,
     rtFontSize: 14,
     rtTop: -6,
   },

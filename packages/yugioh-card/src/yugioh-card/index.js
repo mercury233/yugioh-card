@@ -10,6 +10,8 @@ import enStyle from './style/en-style.js';
 import astralStyle from './style/astral-style.js';
 import custom1Style from './style/custom1-style.js';
 import custom2Style from './style/custom2-style.js';
+import { readFileSync } from 'node:fs';
+import { imageSize } from 'image-size';
 
 export class YugiohCard extends Card {
   cardLeaf = null;
@@ -35,6 +37,7 @@ export class YugiohCard extends Card {
   twentiethLeaf = null;
   cardWidth = 1394;
   cardHeight = 2031;
+  imageAspectRatio = 1;
 
   data = {
     language: 'sc',
@@ -62,6 +65,7 @@ export class YugiohCard extends Card {
     arrowList: [],
     description: '',
     firstLineCompress: false,
+    useScaleXForCompress: true,
     descriptionAlign: false,
     descriptionZoom: 1,
     descriptionWeight: 0,
@@ -130,6 +134,7 @@ export class YugiohCard extends Card {
       text: this.data.name,
       fontFamily: name.fontFamily,
       fontSize: name.fontSize,
+      firstLineCompress: true,
       letterSpacing: name.letterSpacing || 0,
       wordSpacing: name.wordSpacing || 0,
       textAlign: this.data.align || 'left',
@@ -294,10 +299,20 @@ export class YugiohCard extends Card {
       this.leafer.add(this.imageLeaf);
     }
 
+    if (this.data.image && this.data.type === 'pendulum') {
+      try {
+        const buffer = readFileSync(this.data.image);
+        const dimensions = imageSize(buffer);
+        this.imageAspectRatio = dimensions.width / dimensions.height;
+      } catch (e) {
+        this.imageAspectRatio = 1;
+      }
+    }
+
     this.imageLeaf.set({
       url: this.data.image,
       width: this.data.type === 'pendulum' ? 1205 : 1054,
-      height: this.data.type === 'pendulum' ? 1205 : 1054,
+      height: this.data.type === 'pendulum' ? (this.imageAspectRatio > 1 ? 901 : 1541) : 1054,
       x: this.data.type === 'pendulum' ? 94 : 170,
       y: this.data.type === 'pendulum' ? 364 : 375,
       visible: this.data.image,
@@ -376,6 +391,7 @@ export class YugiohCard extends Card {
       fontFamily: pendulumDescription.fontFamily,
       fontSize: pendulumDescription.fontSize,
       fontScale: this.data.descriptionZoom,
+      useScaleXForCompress: pendulumDescription.useScaleXForCompress,
       strokeWidth: this.data.descriptionWeight,
       lineHeight: pendulumDescription.lineHeight,
       letterSpacing: pendulumDescription.letterSpacing || 0,
@@ -383,7 +399,7 @@ export class YugiohCard extends Card {
       rtFontSize: pendulumDescription.rtFontSize,
       rtTop: pendulumDescription.rtTop,
       width: 950,
-      height: 230,
+      height: pendulumDescription.height || 230,
       x: 221,
       y: pendulumDescription.top,
       visible: this.data.type === 'pendulum',
@@ -514,10 +530,10 @@ export class YugiohCard extends Card {
     let height = 380;
     if (!['spell', 'trap'].includes(this.data.type)) {
       if (this.showEffect) {
-        height -= 50;
+        height -= effectHeight;
       }
       if (this.data.atkBar) {
-        height -= 55;
+        height -= 60;
       }
     }
 
@@ -528,6 +544,7 @@ export class YugiohCard extends Card {
       fontScale: this.data.descriptionZoom,
       textAlign: this.data.descriptionAlign ? 'center' : 'justify',
       firstLineCompress: this.data.firstLineCompress,
+      useScaleXForCompress: description.useScaleXForCompress,
       strokeWidth: this.data.descriptionWeight,
       lineHeight: description.lineHeight,
       letterSpacing: description.letterSpacing || 0,
@@ -578,15 +595,14 @@ export class YugiohCard extends Card {
     } else if (this.data.atk === -2) {
       atkText = '∞';
     }
-    const atkLeft = this.data.language === 'astral' ? 898 : 999;
     atk.set({
       text: atkText,
       fontFamily: this.data.language === 'astral' ? 'ygo-astral, serif' : 'ygo-atk-def, serif',
       fontSize: this.data.language === 'astral' ? 49 : 62,
       fill: 'black',
       letterSpacing: this.data.language === 'astral' ? 0 : 2,
-      x: atkLeft,
-      y: this.data.language === 'astral' ? 1850 : 1839,
+      x: this.data.language === 'astral' ? 898 : 1000,
+      y: this.data.language === 'astral' ? 1850 : 1837,
       around: { type: 'percent', x: 1, y: 0 },
       visible: ['monster', 'pendulum'].includes(this.data.type),
     });
@@ -599,15 +615,14 @@ export class YugiohCard extends Card {
     } else if (this.data.def === -2) {
       defText = '∞';
     }
-    const defLeft = this.data.language === 'astral' ? 1279 : 1282;
     def.set({
       text: defText,
       fontFamily: this.data.language === 'astral' ? 'ygo-astral, serif' : 'ygo-atk-def, serif',
       fontSize: this.data.language === 'astral' ? 49 : 62,
       fill: 'black',
       letterSpacing: this.data.language === 'astral' ? 0 : 2,
-      x: defLeft,
-      y: this.data.language === 'astral' ? 1850 : 1839,
+      x: this.data.language === 'astral' ? 1279 : 1282,
+      y: this.data.language === 'astral' ? 1850 : 1837,
       around: { type: 'percent', x: 1, y: 0 },
       visible: (this.data.type === 'monster' && this.data.cardType !== 'link') || this.data.type === 'pendulum',
     });
@@ -621,7 +636,7 @@ export class YugiohCard extends Card {
       fill: 'black',
       letterSpacing: this.data.language === 'astral' ? 0 : 2,
       x: linkLeft,
-      y: this.data.language === 'astral' ? 1850 : 1845,
+      y: this.data.language === 'astral' ? 1850 : 1855,
       around: { type: 'percent', x: 1, y: 0 },
       scaleX: this.data.language === 'astral' ? 1 : 1.3,
       visible: this.data.type === 'monster' && this.data.cardType === 'link',
@@ -662,6 +677,7 @@ export class YugiohCard extends Card {
       url: copyrightUrl,
       x: this.cardWidth - 141,
       y: 1936,
+      height: this.data.copyright ? null : 0,
       around: { type: 'percent', x: 1, y: 0 },
       visible: this.data.copyright,
       zIndex: 30,

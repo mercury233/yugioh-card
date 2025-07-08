@@ -40,7 +40,7 @@ function loadCSS(url) {
     if (fontUrls.length > 0) {
       try {
         skia.FontLibrary.use(fontFamily, fontUrls);
-        console.log(`Loaded font: ${fontFamily}`);
+        //console.log(`Loaded font: ${fontFamily}`);
         loadedCss[url] = true;
       } catch (error) {
         console.error(`Failed to load font: ${fontFamily}`, fontUrls, error);
@@ -71,9 +71,9 @@ export class Card {
     this.resourcePath = data.resourcePath;
 
     resetAttr();
-    loadCSS(`${this.resourcePath}/custom-font/custom-font.css`);
+    //loadCSS(`${this.resourcePath}/custom-font/custom-font.css`);
     loadCSS(`${this.resourcePath}/yugioh/font/ygo-font.css`);
-    loadCSS(`${this.resourcePath}/rush-duel/font/rd-font.css`);
+    //loadCSS(`${this.resourcePath}/rush-duel/font/rd-font.css`);
 
     useCanvas('skia', skia);
   }

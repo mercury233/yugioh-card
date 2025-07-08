@@ -23,6 +23,8 @@ export default inheritProp({
     top: 1282,
     fontSize: 42,
     lineHeight: 1.02,
+    useScaleXForCompress: false,
+    height: 220,
   },
   effect: {
     fontFamily: 'ygo-en-race, serif',
@@ -35,5 +37,6 @@ export default inheritProp({
     fontSize: 42,
     lineHeight: 1.02,
     smallFontSize: 36,
+    useScaleXForCompress: false,
   },
 });
