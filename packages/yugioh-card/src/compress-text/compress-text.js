@@ -230,8 +230,8 @@ export class CompressText extends Group {
     let bestHeight = Number.MAX_VALUE;
 
     // 尝试不同的文本缩放和行距缩放组合
-    for (let textScale = 1; textScale >= 0.5; textScale -= 0.02) {
-      for (let lineHeightScale = 1; lineHeightScale >= 0.8; lineHeightScale -= 0.02) {
+    for (let textScale = 1; textScale >= 0.6; textScale -= 0.02) {
+      for (let lineHeightScale = 1; lineHeightScale >= 0.9; lineHeightScale -= 0.01) {
         this.textScale = textScale;
         this.lineHeightScale = lineHeightScale;
         this.updateTextScale();

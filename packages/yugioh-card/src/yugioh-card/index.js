@@ -35,8 +35,8 @@ export class YugiohCard extends Card {
   rareLeaf = null;
   attributeRareLeaf = null;
   twentiethLeaf = null;
-  cardWidth = 1394;
-  cardHeight = 2031;
+  cardWidth = 680;
+  cardHeight = 986;
   imageAspectRatio = 1;
 
   data = {
@@ -118,7 +118,7 @@ export class YugiohCard extends Card {
     }
     this.cardLeaf.set({
       url: this.cardUrl,
-      cornerRadius: this.data.radius ? 24 : 0,
+      cornerRadius: this.data.radius ? 12 : 0,
       zIndex: 0,
     });
   }
@@ -145,9 +145,9 @@ export class YugiohCard extends Card {
       rtFontSize: name.rtFontSize,
       rtTop: name.rtTop,
       rtColor: this.autoNameColor,
-      width: this.showAttribute ? 1033 : 1161,
-      height: 200,
-      x: 116,
+      width: this.showAttribute ? 503 : 565,
+      height: 97,
+      x: 57,
       y: name.top,
       zIndex: 10,
     });
@@ -160,8 +160,8 @@ export class YugiohCard extends Card {
     }
     this.attributeLeaf.set({
       url: this.attributeUrl,
-      x: 1163,
-      y: 96,
+      x: 568,
+      y: 47,
       visible: this.showAttribute,
       zIndex: 10,
     });
@@ -178,13 +178,13 @@ export class YugiohCard extends Card {
     }
 
     const levelUrl = `${this.baseImage}/level.png`;
-    const levelWidth = 88;
-    const right = this.data.level < 13 ? 147 : 101;
+    const levelWidth = 42.7;
+    const right = this.data.level < 13 ? 72 : 50;
     this.levelLeaf.children.forEach((level, index) => {
       level.set({
         url: levelUrl,
-        x: this.cardWidth - right - index * (levelWidth + 4),
-        y: 247,
+        x: this.cardWidth - right - index * (levelWidth + 2),
+        y: 120,
         around: { type: 'percent', x: 1, y: 0 },
         visible: index < this.data.level,
       });
@@ -207,13 +207,13 @@ export class YugiohCard extends Card {
     }
 
     const rankUrl = `${this.baseImage}/rank.png`;
-    const rankWidth = 88;
-    const left = this.data.rank < 13 ? 147 : 101;
+    const rankWidth = 42.7;
+    const left = this.data.rank < 13 ? 73 : 51;
     this.rankLeaf.children.forEach((rank, index) => {
       rank.set({
         url: rankUrl,
-        x: left + index * (rankWidth + 4),
-        y: 247,
+        x: left + index * (rankWidth + 2),
+        y: 120,
         visible: index < this.data.rank,
       });
     });
@@ -243,7 +243,7 @@ export class YugiohCard extends Card {
     const { icon } = spellTrap;
 
     const iconUrl = this.data.icon ? `${this.baseImage}/icon-${this.data.icon}.png` : '';
-    const iconWidth = this.data.icon ? 72 : 0;
+    const iconWidth = this.data.icon ? 35 : 0;
     const leftBracket = ['en', 'kr'].includes(this.data.language) ? '[' : '【';
     const rightBracket = ['en', 'kr'].includes(this.data.language) ? ']' : '】';
     const letterSpacing = spellTrap.letterSpacing || 0;
@@ -269,6 +269,7 @@ export class YugiohCard extends Card {
       url: iconUrl,
       x: rightText.x - (this.data.icon ? (icon.marginRight || 0) : 0) - iconWidth,
       y: spellTrap.top + (icon.marginTop || 0),
+      width: iconWidth,
     });
 
     leftText.set({
@@ -311,10 +312,10 @@ export class YugiohCard extends Card {
 
     this.imageLeaf.set({
       url: this.data.image,
-      width: this.data.type === 'pendulum' ? 1205 : 1054,
-      height: this.data.type === 'pendulum' ? (this.imageAspectRatio > 1 ? 901 : 1541) : 1054,
-      x: this.data.type === 'pendulum' ? 94 : 170,
-      y: this.data.type === 'pendulum' ? 364 : 375,
+      width: this.data.type === 'pendulum' ? 585 : 512,
+      height: this.data.type === 'pendulum' ? (this.imageAspectRatio > 1 ? 438 : 749) : 512,
+      x: this.data.type === 'pendulum' ? 48 : 85,
+      y: this.data.type === 'pendulum' ? 177 : 182,
       visible: this.data.image,
       zIndex: 10,
     });
@@ -329,8 +330,8 @@ export class YugiohCard extends Card {
     const maskUrl = this.data.type === 'pendulum' ? `${this.baseImage}/card-mask-pendulum.png` : `${this.baseImage}/card-mask.png`;
     this.maskLeaf.set({
       url: maskUrl,
-      x: this.data.type === 'pendulum' ? 68 : 117,
-      y: this.data.type === 'pendulum' ? 342 : 322,
+      x: this.data.type === 'pendulum' ? 35 : 59,
+      y: this.data.type === 'pendulum' ? 166 : 156,
       zIndex: 20,
     });
   }
@@ -348,27 +349,27 @@ export class YugiohCard extends Card {
     const leftPendulum = this.pendulumLeaf.children[0];
     const rightPendulum = this.pendulumLeaf.children[1];
 
-    let left = this.data.language === 'astral' ? 144 : 145;
+    let left = 72;
     leftPendulum.set({
       text: this.data.pendulumScale,
-      fontFamily: this.data.language === 'astral' ? 'ygo-astral, serif' : 'ygo-atk-def, serif',
-      fontSize: this.data.language === 'astral' ? 84 : 98,
+      fontFamily: 'ygo-atk-def, serif',
+      fontSize: 48,
       fill: 'black',
-      letterSpacing: this.data.language === 'astral' ? 0 : -10,
+      letterSpacing: -5,
       x: left,
-      y: this.data.language === 'astral' ? 1389 : 1370,
+      y: 666,
       around: { type: 'percent', x: 0.5, y: 0 },
     });
 
-    left = this.data.language === 'astral' ? 1250 : 1249;
+    left = 608;
     rightPendulum.set({
       text: this.data.pendulumScale,
-      fontFamily: this.data.language === 'astral' ? 'ygo-astral, serif' : 'ygo-atk-def, serif',
-      fontSize: this.data.language === 'astral' ? 84 : 98,
+      fontFamily: 'ygo-atk-def, serif',
+      fontSize: 48,
       fill: 'black',
-      letterSpacing: this.data.language === 'astral' ? 0 : -10,
+      letterSpacing: -5,
       x: left,
-      y: this.data.language === 'astral' ? 1389 : 1370,
+      y: 666,
       around: { type: 'percent', x: 0.5, y: 0 },
     });
 
@@ -398,9 +399,9 @@ export class YugiohCard extends Card {
       wordSpacing: pendulumDescription.wordSpacing || 0,
       rtFontSize: pendulumDescription.rtFontSize,
       rtTop: pendulumDescription.rtTop,
-      width: 950,
-      height: pendulumDescription.height || 230,
-      x: 221,
+      width: 462,
+      height: pendulumDescription.height || 105,
+      x: 109,
       y: pendulumDescription.top,
       visible: this.data.type === 'pendulum',
       zIndex: 30,
@@ -416,17 +417,17 @@ export class YugiohCard extends Card {
     this.packageLeaf.set({
       text: this.data.package,
       fontFamily: 'ygo-password, serif',
-      fontSize: 40,
+      fontSize: 20,
       color: this.data.type === 'monster' && this.data.cardType === 'xyz' ? 'white' : 'black',
       textAlign: this.data.type === 'pendulum' ? 'left' : 'right',
-      y: this.data.type === 'pendulum' ? 1859 : 1455,
+      y: this.data.type === 'pendulum' ? 903 : 707,
       zIndex: 30,
     });
     if (this.data.type === 'pendulum') {
-      this.packageLeaf.x = 116;
+      this.packageLeaf.x = 56;
     } else {
       const bounds = this.packageLeaf.bounds;
-      const right = this.data.type === 'monster' && this.data.cardType === 'link' ? 252 : 148;
+      const right = this.data.type === 'monster' && this.data.cardType === 'link' ? 121 : 71;
       this.packageLeaf.x = this.cardWidth - right - bounds.width;
     }
   }
@@ -442,25 +443,25 @@ export class YugiohCard extends Card {
     }
 
     const arrowOnList = [
-      { x: 555, y: 278, url: this.baseImage + '/arrow-up-on.png' },
-      { x: 1130, y: 299, url: this.baseImage + '/arrow-right-up-on.png' },
-      { x: 1223, y: 761, url: this.baseImage + '/arrow-right-on.png' },
-      { x: 1130, y: 1336, url: this.baseImage + '/arrow-right-down-on.png' },
-      { x: 555, y: 1428, url: this.baseImage + '/arrow-down-on.png' },
-      { x: 95, y: 1336, url: this.baseImage + '/arrow-left-down-on.png' },
-      { x: 71, y: 758, url: this.baseImage + '/arrow-left-on.png' },
-      { x: 95, y: 299, url: this.baseImage + '/arrow-left-up-on.png' },
+      { x: 272, y: 134, url: this.baseImage + '/arrow-up-on.png' },
+      { x: 552, y: 145, url: this.baseImage + '/arrow-right-up-on.png' },
+      { x: 596, y: 370, url: this.baseImage + '/arrow-right-on.png' },
+      { x: 552, y: 649, url: this.baseImage + '/arrow-right-down-on.png' },
+      { x: 272, y: 693, url: this.baseImage + '/arrow-down-on.png' },
+      { x: 48, y: 649, url: this.baseImage + '/arrow-left-down-on.png' },
+      { x: 37, y: 368, url: this.baseImage + '/arrow-left-on.png' },
+      { x: 48, y: 145, url: this.baseImage + '/arrow-left-up-on.png' },
     ];
 
     const arrowOffList = [
-      { x: 555, y: 278, url: this.baseImage + '/arrow-up-off.png' },
-      { x: 1130, y: 299, url: this.baseImage + '/arrow-right-up-off.png' },
-      { x: 1223, y: 761, url: this.baseImage + '/arrow-right-off.png' },
-      { x: 1130, y: 1336, url: this.baseImage + '/arrow-right-down-off.png' },
-      { x: 555, y: 1428, url: this.baseImage + '/arrow-down-off.png' },
-      { x: 95, y: 1336, url: this.baseImage + '/arrow-left-down-off.png' },
-      { x: 71, y: 758, url: this.baseImage + '/arrow-left-off.png' },
-      { x: 95, y: 299, url: this.baseImage + '/arrow-left-up-off.png' },
+      { x: 272, y: 134, url: this.baseImage + '/arrow-up-off.png' },
+      { x: 552, y: 145, url: this.baseImage + '/arrow-right-up-off.png' },
+      { x: 596, y: 370, url: this.baseImage + '/arrow-right-off.png' },
+      { x: 552, y: 649, url: this.baseImage + '/arrow-right-down-off.png' },
+      { x: 272, y: 693, url: this.baseImage + '/arrow-down-off.png' },
+      { x: 48, y: 649, url: this.baseImage + '/arrow-left-down-off.png' },
+      { x: 37, y: 368, url: this.baseImage + '/arrow-left-off.png' },
+      { x: 48, y: 145, url: this.baseImage + '/arrow-left-up-off.png' },
     ];
 
     this.linkArrowLeaf.children.forEach((arrow, index) => {
@@ -499,9 +500,9 @@ export class YugiohCard extends Card {
       wordSpacing: effect.wordSpacing || 0,
       rtFontSize: effect.rtFontSize,
       rtTop: effect.rtTop,
-      width: 1175,
+      width: 571,
       height: 100,
-      x: 109 + (effect.textIndent || 0),
+      x: 56 + (effect.textIndent || 0),
       y: effect.top,
       visible: this.showEffect,
       zIndex: 30,
@@ -527,13 +528,13 @@ export class YugiohCard extends Card {
       fontFamily = 'ygo-en-italic';
     }
 
-    let height = 380;
+    let height = 180;
     if (!['spell', 'trap'].includes(this.data.type)) {
       if (this.showEffect) {
         height -= effectHeight;
       }
       if (this.data.atkBar) {
-        height -= 60;
+        height -= 27;
       }
     }
 
@@ -553,9 +554,9 @@ export class YugiohCard extends Card {
       rtTop: description.rtTop,
       autoSmallSize: !!description.smallFontSize,
       smallFontSize: description.smallFontSize,
-      width: 1175,
+      width: 571,
       height,
-      x: 109,
+      x: 55,
       y: effect.top + effectHeight,
       zIndex: 30,
     });
@@ -583,13 +584,14 @@ export class YugiohCard extends Card {
     const link = this.atkDefLinkLeaf.children[3];
     atkDefLinkImage.set({
       url: this.atkDefLinkUrl,
-      x: 109,
-      y: 1844,
+      scale: 0.4857685,
+      x: 55,
+      y: 896,
     });
 
     let atkText = '';
     if (this.data.atk >= 0) {
-      atkText = this.data.language === 'astral' ? numberToFull(this.data.atk) : this.data.atk;
+      atkText = this.data.atk;
     } else if (this.data.atk === -1) {
       atkText = '?';
     } else if (this.data.atk === -2) {
@@ -597,19 +599,19 @@ export class YugiohCard extends Card {
     }
     atk.set({
       text: atkText,
-      fontFamily: this.data.language === 'astral' ? 'ygo-astral, serif' : 'ygo-atk-def, serif',
-      fontSize: this.data.language === 'astral' ? 49 : 62,
+      fontFamily: 'ygo-atk-def, serif',
+      fontSize: 29.5,
       fill: 'black',
-      letterSpacing: this.data.language === 'astral' ? 0 : 2,
-      x: this.data.language === 'astral' ? 898 : 1000,
-      y: this.data.language === 'astral' ? 1850 : 1837,
+      letterSpacing: 1,
+      x: 488,
+      y: 894,
       around: { type: 'percent', x: 1, y: 0 },
       visible: ['monster', 'pendulum'].includes(this.data.type),
     });
 
     let defText = '';
     if (this.data.def >= 0) {
-      defText = this.data.language === 'astral' ? numberToFull(this.data.def) : this.data.def;
+      defText = this.data.def;
     } else if (this.data.def === -1) {
       defText = '?';
     } else if (this.data.def === -2) {
@@ -617,28 +619,28 @@ export class YugiohCard extends Card {
     }
     def.set({
       text: defText,
-      fontFamily: this.data.language === 'astral' ? 'ygo-astral, serif' : 'ygo-atk-def, serif',
-      fontSize: this.data.language === 'astral' ? 49 : 62,
+      fontFamily: 'ygo-atk-def, serif',
+      fontSize: 29.5,
       fill: 'black',
-      letterSpacing: this.data.language === 'astral' ? 0 : 2,
-      x: this.data.language === 'astral' ? 1279 : 1282,
-      y: this.data.language === 'astral' ? 1850 : 1837,
+      letterSpacing: 1,
+      x: 625,
+      y: 894,
       around: { type: 'percent', x: 1, y: 0 },
       visible: (this.data.type === 'monster' && this.data.cardType !== 'link') || this.data.type === 'pendulum',
     });
 
-    const linkText = this.data.language === 'astral' ? numberToFull(this.data.arrowList.length) : this.data.arrowList.length;
-    const linkLeft = this.data.language === 'astral' ? 1279 : 1280;
+    const linkText = this.data.arrowList.length;
+    const linkLeft = 624;
     link.set({
       text: linkText,
-      fontFamily: this.data.language === 'astral' ? 'ygo-astral, serif' : 'ygo-link, serif',
-      fontSize: this.data.language === 'astral' ? 49 : 44,
+      fontFamily: 'ygo-link, serif',
+      fontSize: 22,
       fill: 'black',
-      letterSpacing: this.data.language === 'astral' ? 0 : 2,
+      letterSpacing: 1,
       x: linkLeft,
-      y: this.data.language === 'astral' ? 1850 : 1855,
+      y: 901,
       around: { type: 'percent', x: 1, y: 0 },
-      scaleX: this.data.language === 'astral' ? 1 : 1.3,
+      scaleX: 1.3,
       visible: this.data.type === 'monster' && this.data.cardType === 'link',
     });
 
@@ -657,10 +659,10 @@ export class YugiohCard extends Card {
     this.passwordLeaf.set({
       text: this.data.password,
       fontFamily: 'ygo-password, serif',
-      fontSize: 40,
+      fontSize: 20,
       color: this.data.type === 'monster' && this.data.cardType === 'xyz' ? 'white' : 'black',
-      x: 66,
-      y: 1932,
+      x: 34,
+      y: 937,
       zIndex: 30,
     });
   }
@@ -675,8 +677,8 @@ export class YugiohCard extends Card {
     const copyrightUrl = this.data.copyright ? `${this.baseImage}/copyright-${this.data.copyright}-${color}.svg` : '';
     this.copyrightLeaf.set({
       url: copyrightUrl,
-      x: this.cardWidth - 141,
-      y: 1936,
+      x: this.cardWidth - 70,
+      y: 940,
       height: this.data.copyright ? null : 0,
       around: { type: 'percent', x: 1, y: 0 },
       visible: this.data.copyright,
@@ -693,8 +695,10 @@ export class YugiohCard extends Card {
     const laserUrl = this.data.laser ? `${this.baseImage}/${this.data.laser}.png` : '';
     this.laserLeaf.set({
       url: laserUrl,
-      x: 1276,
-      y: 1913,
+      x: 622,
+      y: 929,
+      width: this.data.laser ? null : 0,
+      height: this.data.laser ? null : 0,
       visible: this.data.laser,
       zIndex: 120,
     });
@@ -711,7 +715,7 @@ export class YugiohCard extends Card {
 
     this.rareLeaf.set({
       url: rareUrl,
-      cornerRadius: this.data.radius ? 24 : 0,
+      cornerRadius: this.data.radius ? 12 : 0,
       visible: this.data.rare,
       zIndex: 100,
     });
@@ -726,8 +730,8 @@ export class YugiohCard extends Card {
     const attributeRareUrl = `${this.baseImage}/attribute-rare.png`;
     this.attributeRareLeaf.set({
       url: attributeRareUrl,
-      x: 1163,
-      y: 96,
+      x: 567,
+      y: 47,
       visible: this.showAttributeRare,
       zIndex: 30,
     });
@@ -742,8 +746,8 @@ export class YugiohCard extends Card {
     const twentiethUrl = `${this.baseImage}/twentieth.png`;
     this.twentiethLeaf.set({
       url: twentiethUrl,
-      x: 472,
-      y: 1532,
+      x: 231,
+      y: 744,
       visible: this.data.twentieth,
       zIndex: 10,
     });
