@@ -50,7 +50,6 @@ export class CompressText extends Group {
       fontScale: 1,
       autoSmallSize: false,
       smallFontSize: 18,
-      useScaleXForCompress: true, // 是否使用scaleX压缩，false时直接缩小字体
       key: 0,
       width: 0,
       height: 0,
@@ -369,28 +368,12 @@ export class CompressText extends Group {
           const paddingRight = char.paddingRight || 0;
           if (this.firstLineCompress && newlineIndex === 0) {
             // 首行压缩到一行
-            if (this.useScaleXForCompress) {
-              charLeaf.scaleX = this.firstLineTextScale;
-              char.width = char.originalWidth * this.firstLineTextScale;
-            } else {
-              const newFontSize = this.fontSize * this.firstLineTextScale;
-              charLeaf.fontSize = newFontSize;
-              charLeaf.lineHeight = newFontSize * this.lineHeight;
-              char.width = char.originalWidth * this.firstLineTextScale;
-              char.height = char.originalHeight * this.firstLineTextScale;
-            }
+            charLeaf.scaleX = this.firstLineTextScale;
+            char.width = char.originalWidth * this.firstLineTextScale;
           } else if (!this.noCompressText.includes(char.text) && lastNewline) {
             // 只压缩最后一行
-            if (this.useScaleXForCompress) {
-              charLeaf.scaleX = this.textScale;
-              char.width = char.originalWidth * this.textScale;
-            } else {
-              const newFontSize = this.fontSize * this.textScale;
-              charLeaf.fontSize = newFontSize;
-              charLeaf.lineHeight = newFontSize * this.lineHeight;
-              char.width = char.originalWidth * this.textScale;
-              char.height = char.originalHeight * this.textScale;
-            }
+            charLeaf.scaleX = this.textScale;
+            char.width = char.originalWidth * this.textScale;
           }
 
           // 应用行距缩放
@@ -540,13 +523,7 @@ export class CompressText extends Group {
 
       if (this.rtFontScaleX !== 1) {
         // 特殊情况不做压缩，只居中对齐
-        if (this.useScaleXForCompress) {
-          rtLeaf.scaleX = this.rtFontScaleX;
-        } else {
-          const newFontSize = rtLeaf.fontSize * this.rtFontScaleX;
-          rtLeaf.fontSize = newFontSize;
-          rtLeaf.lineHeight = newFontSize * this.rtLineHeight;
-        }
+        rtLeaf.scaleX = this.rtFontScaleX;
       } else if (rt.width < rtTargetWidth && ruby.text.length > 1) {
         // 拉伸两端对齐
         const maxLetterSpacing = this.rtFontSize * this.fontScale * 9;
@@ -559,25 +536,13 @@ export class CompressText extends Group {
           // 防止过度压缩，加宽ruby
           // 公式：(rubyWidth + widen) / rtWidth = 0.6
           const widen = 0.6 * rt.width - rubyWidth;
-          if (this.useScaleXForCompress) {
-            rtLeaf.scaleX = 0.6;
-          } else {
-            const newFontSize = rtLeaf.fontSize * 0.6;
-            rtLeaf.fontSize = newFontSize;
-            rtLeaf.lineHeight = newFontSize * this.rtLineHeight;
-          }
+          rtLeaf.scaleX = 0.6;
           firstChar.paddingLeft = widen / 2;
           lastChar.paddingRight = widen / 2;
           this.needCompressTwice = true;
         } else {
           const scaleRatio = rubyWidth / rt.width;
-          if (this.useScaleXForCompress) {
-            rtLeaf.scaleX = scaleRatio;
-          } else {
-            const newFontSize = rtLeaf.fontSize * scaleRatio;
-            rtLeaf.fontSize = newFontSize;
-            rtLeaf.lineHeight = newFontSize * this.rtLineHeight;
-          }
+          rtLeaf.scaleX = scaleRatio;
         }
       }
     }

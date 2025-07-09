@@ -85,7 +85,6 @@ card.leafer.export('xxx.png');
 |      arrowList      |   连接箭头    |  array  |                                              [1, 2, 3, 4, 5, 6, 7, 8]                                               |      [上, 右上, 右, 右下, 下, 左下, 左, 左上]       |        []         |
 |     description     |   效果描述    | string  |                                                          —                                                          |                    —                    |        ''         |
 |  firstLineCompress  |  是否首行压缩   | boolean |                                                          —                                                          |                    —                    |       false       |
-| useScaleXForCompress |  压缩模式选择   | boolean |                                                          —                                                          |        true：使用scaleX压缩，false：直接缩小字体        |       true        |
 |  descriptionAlign   | 是否效果描述居中  | boolean |                                                          —                                                          |                    —                    |       false       |
 |   descriptionZoom   |  效果描述缩放   | number  |                                                          —                                                          |                    —                    |         1         |
 |  descriptionWeight  |  效果描述字重   | number  |                                                          —                                                          |                    —                    |         0         |
@@ -117,7 +116,6 @@ card.leafer.export('xxx.png');
 |        def        |   防御力    | number  |                                   —                                    |             ?：-1              |     0     |
 |    description    |   效果描述   | string  |                                   —                                    |               —               |    ''     |
 | firstLineCompress |  是否首行压缩  | boolean |                                   —                                    |               —               |   false   |
-| useScaleXForCompress |  压缩模式选择  | boolean |                                   —                                    |     true：使用scaleX压缩，false：直接缩小字体     |   true    |
 | descriptionAlign  | 是否效果描述居中 | boolean |                                   —                                    |               —               |   false   |
 |  descriptionZoom  |  效果描述缩放  | number  |                                   —                                    |               —               |     1     |
 | descriptionWeight |  效果描述字重  | number  |                                   —                                    |               —               |     0     |
@@ -172,7 +170,6 @@ card.leafer.export('xxx.png');
 |        def        |   防御力    | number  |                                            —                                             |           ????：-1，X000：-2           |     0     |
 |    description    |   效果描述   | string  |                                            —                                             |                  —                  |    ''     |
 | firstLineCompress |  是否首行压缩  | boolean |                                            —                                             |                  —                  |   false   |
-| useScaleXForCompress |  压缩模式选择  | boolean |                                            —                                             |         true：使用scaleX压缩，false：直接缩小字体         |   true    |
 | descriptionAlign  | 是否效果描述居中 | boolean |                                            —                                             |                  —                  |   false   |
 |  descriptionZoom  |  效果描述缩放  | number  |                                            —                                             |                  —                  |     1     |
 | descriptionWeight |  效果描述字重  | number  |                                            —                                             |                  —                  |     0     |
