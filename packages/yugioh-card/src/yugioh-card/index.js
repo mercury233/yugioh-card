@@ -146,7 +146,7 @@ export class YugiohCard extends Card {
       rtColor: this.autoNameColor,
       width: this.showAttribute ? 503 : 565,
       height: 97,
-      x: 57,
+      x: name.left || 57,
       y: name.top,
       zIndex: 10,
     });
@@ -553,7 +553,7 @@ export class YugiohCard extends Card {
       smallFontSize: description.smallFontSize,
       width: 571,
       height,
-      x: 55,
+      x: 54,
       y: effect.top + effectHeight,
       zIndex: 30,
     });
@@ -581,7 +581,7 @@ export class YugiohCard extends Card {
     const link = this.atkDefLinkLeaf.children[3];
     atkDefLinkImage.set({
       url: this.atkDefLinkUrl,
-      scale: 0.4857685,
+      scale: 0.4857,
       x: 55,
       y: 896,
     });
