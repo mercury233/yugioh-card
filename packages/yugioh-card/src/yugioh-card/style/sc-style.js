@@ -8,7 +8,7 @@ export default inheritProp({
     fontSize: 52,
   },
   spellTrap: {
-    top: 124,
+    top: 122,
     fontSize: 37,
     right: 65,
     letterSpacing: 1,

@@ -20,6 +20,12 @@
 }
 
 @font-face {
+  font-family: "mygo-jp";
+  src: url("subset.woff") format("woff");
+  font-display: swap;
+}
+
+@font-face {
   font-family: "ygo-kr";
   src: url("ygo-kr.woff2") format("woff2"),
   url("ygo-kr.woff") format("woff");

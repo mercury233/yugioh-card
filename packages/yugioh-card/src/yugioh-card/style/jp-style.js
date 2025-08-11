@@ -1,7 +1,7 @@
 import { inheritProp } from '../../utils/index.js';
 
 export default inheritProp({
-  fontFamily: 'ygo-jp, serif',
+  fontFamily: 'ygo-jp, mygo-jp, 方正隶变_GBK, 隶书, serif',
   name: {
     top: 48,
     fontSize: 52,
