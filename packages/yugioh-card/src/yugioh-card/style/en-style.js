@@ -35,6 +35,5 @@ export default inheritProp({
   description: {
     fontSize: 20,
     lineHeight: 1.02,
-    smallFontSize: 17.5,
   },
 });

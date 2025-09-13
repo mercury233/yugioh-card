@@ -38,7 +38,6 @@ export default inheritProp({
   },
   description: {
     fontSize: 18.5,
-    smallFontSize: 17,
     lineHeight: 1.18,
     rtFontSize: 6,
     rtTop: -3,

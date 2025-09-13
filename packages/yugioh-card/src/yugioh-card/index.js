@@ -550,8 +550,6 @@ export class YugiohCard extends Card {
       wordSpacing: description.wordSpacing || 0,
       rtFontSize: description.rtFontSize,
       rtTop: description.rtTop,
-      autoSmallSize: !!description.smallFontSize,
-      smallFontSize: description.smallFontSize,
       width: 571,
       height,
       x: 54,

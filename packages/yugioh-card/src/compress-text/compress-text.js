@@ -15,7 +15,6 @@ export class CompressText extends Group {
     this.textScale = 1; // 文本缩放比例
     this.lineHeightScale = 1; // 行距缩放比例
     this.firstLineTextScale = 1; // 首行文本缩放比例
-    this.isSmallSize = false; // 是否是小文字
     this.group = null; // Leafer文本组
     this.needCompressTwice = false; // 是否需要二次压缩
     this.bounds = {}; // 宽高信息
@@ -48,8 +47,6 @@ export class CompressText extends Group {
       rtStrokeWidth: 0,
       rtFontScaleX: 1,
       fontScale: 1,
-      autoSmallSize: false,
-      smallFontSize: 18,
       key: 0,
       width: 0,
       height: 0,
@@ -146,7 +143,6 @@ export class CompressText extends Group {
     this.textScale = 1;
     this.lineHeightScale = 1;
     this.firstLineTextScale = 1;
-    this.isSmallSize = false;
     this.needCompressTwice = false;
     this.parseList = this.getParseList();
     this.newlineList = this.getNewlineList();
@@ -179,7 +175,7 @@ export class CompressText extends Group {
           stroke: this.strokeWidth ? this.color : null,
           strokeWidth: this.strokeWidth,
           strokeAlign: 'center',
-          letterSpacing: this.letterSpacing,
+          letterSpacing: this.letterSpacing * this.fontScale,
         });
         const bounds = charLeaf.textDrawData.bounds;
         char.charLeaf = charLeaf;
@@ -249,9 +245,9 @@ export class CompressText extends Group {
       }
     }
 
-    // 如果仍然无法适应，尝试autoSmallSize
-    if (bestHeight > this.height && this.autoSmallSize && this.fontScale <= 1 && !this.isSmallSize) {
-      this.isSmallSize = true;
+    // 如果仍然无法适应，尝试减小fontScale
+    if (bestHeight > this.height && this.fontScale > 0.5) {
+      this.fontScale -= 0.05;
       this.updateFontSize();
       this.optimizeTextToFitHeight(); // 递归调用以重新优化
       return;
@@ -447,17 +443,18 @@ export class CompressText extends Group {
   updateFontSize() {
     this.textScale = 1;
     this.lineHeightScale = 1;
-    const fontSize = this.isSmallSize ? this.smallFontSize : this.fontSize;
-    const sizePercent = fontSize / this.fontSize;
+    const fontSize = this.fontSize * this.fontScale;
     const charList = this.parseList.map(item => item.ruby.charList).flat();
     charList.forEach(char => {
       const charLeaf = char.charLeaf;
-      charLeaf.fontSize = fontSize * this.fontScale;
-      charLeaf.lineHeight = fontSize * this.lineHeight * this.fontScale;
-      char.originalWidth *= sizePercent;
-      char.originalHeight *= sizePercent;
-      char.width *= sizePercent;
-      char.height *= sizePercent;
+      charLeaf.fontSize = fontSize;
+      charLeaf.lineHeight = fontSize * this.lineHeight;
+      charLeaf.letterSpacing = this.letterSpacing * this.fontScale;
+      const bounds = charLeaf.textDrawData.bounds;
+      char.originalWidth = bounds.width;
+      char.originalHeight = bounds.height;
+      char.width = bounds.width;
+      char.height = bounds.height;
     });
     this.updateTextScale();
   }
@@ -476,9 +473,9 @@ export class CompressText extends Group {
   // 添加行
   addRow() {
     this.removeLineLastSpace(this.currentLine);
-    const fontSize = this.isSmallSize ? this.smallFontSize : this.fontSize;
+    const fontSize = this.fontSize * this.fontScale;
     this.currentX = 0;
-    this.currentY += fontSize * this.lineHeight * this.fontScale * this.lineHeightScale;
+    this.currentY += fontSize * this.lineHeight * this.lineHeightScale;
     this.currentLine++;
   }
 
@@ -514,7 +511,7 @@ export class CompressText extends Group {
       const firstPaddingLeft = firstChar.paddingLeft || 0;
       const lastPaddingRight = lastChar.paddingRight || 0;
       const rubyWidth = lastCharLeaf.x - firstCharLeaf.x + lastChar.width + firstPaddingLeft + lastPaddingRight;
-      const rubyFontSize = this.isSmallSize ? this.smallFontSize : this.fontSize;
+      const rubyFontSize = this.fontSize * this.fontScale;
       const rtTargetWidth = rubyWidth - Math.min(firstChar.width, lastChar.width, rubyFontSize) / 2;
 
       rtLeaf.around = { type: 'percent', x: 0.5, y: 0 };
@@ -551,7 +548,7 @@ export class CompressText extends Group {
   // 创建渐变
   createGradient() {
     if (this.gradient) {
-      const fontSize = this.isSmallSize ? this.smallFontSize : this.fontSize;
+      const fontSize = this.fontSize * this.fontScale;
       this.parseList.forEach(item => {
         const ruby = item.ruby;
         const charList = ruby.charList;
@@ -571,12 +568,12 @@ export class CompressText extends Group {
               ],
             },
             stroke: 'rgba(0, 0, 0, 0.2)',
-            strokeWidth: fontSize * 0.025 * this.fontScale,
+            strokeWidth: fontSize * 0.025,
             strokeAlign: 'outside',
             innerShadow: {
-              blur: fontSize * 0.005 * this.fontScale,
-              x: fontSize * 0.015 * this.fontScale,
-              y: fontSize * 0.015 * this.fontScale,
+              blur: fontSize * 0.005,
+              x: fontSize * 0.015,
+              y: fontSize * 0.015,
               color: 'rgba(0, 0, 0, 0.3)',
             },
           });
