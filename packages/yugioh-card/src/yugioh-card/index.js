@@ -498,6 +498,7 @@ export class YugiohCard extends Card {
       wordSpacing: effect.wordSpacing || 0,
       rtFontSize: effect.rtFontSize,
       rtTop: effect.rtTop,
+      firstLineCompress: true,
       width: 571,
       height: 100,
       x: 56 + (effect.textIndent || 0),
