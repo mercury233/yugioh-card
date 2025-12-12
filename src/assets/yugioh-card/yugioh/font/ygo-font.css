@@ -6,6 +6,12 @@
 }
 
 @font-face {
+  font-family: "ygo-lishu";
+  src: url("ygo-lishu.woff") format("woff");
+  font-display: swap;
+}
+
+@font-face {
   font-family: "ygo-tc";
   src: url("ygo-tc.woff2") format("woff2"),
   url("ygo-tc.woff") format("woff");

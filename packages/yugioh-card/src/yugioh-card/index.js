@@ -7,6 +7,8 @@ import tcStyle from './style/tc-style.js';
 import jpStyle from './style/jp-style.js';
 import krStyle from './style/kr-style.js';
 import enStyle from './style/en-style.js';
+import lishuStyle from './style/lishu-style.js';
+import heitiStyle from './style/heiti-style.js';
 import astralStyle from './style/astral-style.js';
 import custom1Style from './style/custom1-style.js';
 import custom2Style from './style/custom2-style.js';
@@ -390,6 +392,7 @@ export class YugiohCard extends Card {
       text: this.data.pendulumDescription,
       fontFamily: pendulumDescription.fontFamily,
       fontSize: pendulumDescription.fontSize,
+      fontWeight: pendulumDescription.fontWeight,
       fontScale: this.data.descriptionZoom,
       strokeWidth: this.data.descriptionWeight,
       lineHeight: pendulumDescription.lineHeight,
@@ -492,6 +495,7 @@ export class YugiohCard extends Card {
       text: leftBracket + this.data.monsterType + rightBracket,
       fontFamily: effect.fontFamily,
       fontSize: effect.fontSize,
+      fontWeight: effect.fontWeight,
       strokeWidth: this.data.descriptionWeight,
       lineHeight: effect.lineHeight,
       letterSpacing: effect.letterSpacing || 0,
@@ -541,6 +545,7 @@ export class YugiohCard extends Card {
       text: this.data.description,
       fontFamily,
       fontSize: description.fontSize,
+      fontWeight: description.fontWeight,
       fontScale: this.data.descriptionZoom,
       textAlign: this.data.descriptionAlign ? 'center' : 'justify',
       firstLineCompress: this.data.firstLineCompress,
@@ -774,8 +779,10 @@ export class YugiohCard extends Card {
         style = enStyle;
       } else if (this.data.language === 'astral') {
         style = astralStyle;
-      } else if (this.data.language === 'astral') {
-        style = astralStyle;
+      } else if (this.data.language === 'lishu') {
+        style = lishuStyle;
+      } else if (this.data.language === 'heiti') {
+        style = heitiStyle;
       }
     }
     return style;
@@ -830,38 +837,39 @@ export class YugiohCard extends Card {
   }
 
   get spellTrapName() {
+    const lang = this.style.spellTrap.language || this.data.language;
     let name = '';
-    if (this.data.language === 'sc') {
+    if (lang === 'sc') {
       if (this.data.type === 'spell') {
         name = '魔法卡';
       } else if (this.data.type === 'trap') {
         name = '陷阱卡';
       }
-    } else if (this.data.language === 'tc') {
+    } else if (lang === 'tc') {
       if (this.data.type === 'spell') {
         name = '魔法卡';
       } else if (this.data.type === 'trap') {
         name = '陷阱卡';
       }
-    } else if (this.data.language === 'jp') {
+    } else if (lang === 'jp') {
       if (this.data.type === 'spell') {
         name = '[魔(ま)][法(ほう)]カード';
       } else if (this.data.type === 'trap') {
         name = '[罠(トラップ)]カード';
       }
-    } else if (this.data.language === 'kr') {
+    } else if (lang === 'kr') {
       if (this.data.type === 'spell') {
         name = '마법 카드';
       } else if (this.data.type === 'trap') {
         name = '함정 카드';
       }
-    } else if (this.data.language === 'en') {
+    } else if (lang === 'en') {
       if (this.data.type === 'spell') {
         name = 'Spell Card';
       } else if (this.data.type === 'trap') {
         name = 'Trap Card';
       }
-    } else if (this.data.language === 'astral') {
+    } else if (lang === 'astral') {
       if (this.data.type === 'spell') {
         name = 'マホウカアド';
       } else if (this.data.type === 'trap') {
