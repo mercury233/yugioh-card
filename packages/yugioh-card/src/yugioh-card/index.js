@@ -1,5 +1,5 @@
+import { Group, Image, Rect, Text } from 'leafer-unified';
 import { Card } from '../card/index.js';
-import { Group, Image, Text } from '@leafer-ui/node';
 import { CompressText } from '../compress-text/index.js';
 import { numberToFull } from '../utils/index.js';
 import scStyle from './style/sc-style.js';
@@ -85,6 +85,10 @@ export class YugiohCard extends Card {
 
     this.initLeafer();
     this.setData(data.data);
+  }
+
+  get tag() {
+    return 'YugiohCard';
   }
 
   draw() {
@@ -353,7 +357,7 @@ export class YugiohCard extends Card {
     let left = 72;
     leftPendulum.set({
       text: this.data.pendulumScale,
-      fontFamily: 'ygo-atk-def, serif',
+      fontFamily: 'ygo-atk-def',
       fontSize: 48,
       fill: 'black',
       letterSpacing: -5,
@@ -365,7 +369,7 @@ export class YugiohCard extends Card {
     left = 608;
     rightPendulum.set({
       text: this.data.pendulumScale,
-      fontFamily: 'ygo-atk-def, serif',
+      fontFamily: 'ygo-atk-def',
       fontSize: 48,
       fill: 'black',
       letterSpacing: -5,
@@ -399,6 +403,7 @@ export class YugiohCard extends Card {
       letterSpacing: pendulumDescription.letterSpacing || 0,
       wordSpacing: pendulumDescription.wordSpacing || 0,
       rtFontSize: pendulumDescription.rtFontSize,
+      rtStrokeWidth: this.data.descriptionWeight,
       rtTop: pendulumDescription.rtTop,
       width: 462,
       height: pendulumDescription.height || 105,
@@ -417,7 +422,7 @@ export class YugiohCard extends Card {
 
     this.packageLeaf.set({
       text: this.data.package,
-      fontFamily: 'ygo-password, serif',
+      fontFamily: 'ygo-password',
       fontSize: 20,
       color: this.data.type === 'monster' && this.data.cardType === 'xyz' ? 'white' : 'black',
       textAlign: this.data.type === 'pendulum' ? 'left' : 'right',
@@ -501,6 +506,7 @@ export class YugiohCard extends Card {
       letterSpacing: effect.letterSpacing || 0,
       wordSpacing: effect.wordSpacing || 0,
       rtFontSize: effect.rtFontSize,
+      rtStrokeWidth: this.data.descriptionWeight,
       rtTop: effect.rtTop,
       firstLineCompress: true,
       width: 571,
@@ -554,6 +560,7 @@ export class YugiohCard extends Card {
       letterSpacing: description.letterSpacing || 0,
       wordSpacing: description.wordSpacing || 0,
       rtFontSize: description.rtFontSize,
+      rtStrokeWidth: this.data.descriptionWeight,
       rtTop: description.rtTop,
       width: 571,
       height,
@@ -600,7 +607,7 @@ export class YugiohCard extends Card {
     }
     atk.set({
       text: atkText,
-      fontFamily: 'ygo-atk-def, serif',
+      fontFamily: 'ygo-atk-def',
       fontSize: 29.5,
       fill: 'black',
       letterSpacing: 1,
@@ -620,7 +627,7 @@ export class YugiohCard extends Card {
     }
     def.set({
       text: defText,
-      fontFamily: 'ygo-atk-def, serif',
+      fontFamily: 'ygo-atk-def',
       fontSize: 29.5,
       fill: 'black',
       letterSpacing: 1,
@@ -634,7 +641,7 @@ export class YugiohCard extends Card {
     const linkLeft = 624;
     link.set({
       text: linkText,
-      fontFamily: 'ygo-link, serif',
+      fontFamily: 'ygo-link',
       fontSize: 22,
       fill: 'black',
       letterSpacing: 1,
@@ -659,7 +666,7 @@ export class YugiohCard extends Card {
 
     this.passwordLeaf.set({
       text: this.data.password,
-      fontFamily: 'ygo-password, serif',
+      fontFamily: 'ygo-password',
       fontSize: 20,
       color: this.data.type === 'monster' && this.data.cardType === 'xyz' ? 'white' : 'black',
       x: 34,

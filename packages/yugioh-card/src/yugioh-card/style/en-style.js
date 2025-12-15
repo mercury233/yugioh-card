@@ -1,15 +1,15 @@
 import { inheritProp } from '../../utils/index.js';
 
 export default inheritProp({
-  fontFamily: 'ygo-en, serif',
+  fontFamily: 'ygo-en',
   name: {
-    fontFamily: 'ygo-en-name, serif',
+    fontFamily: 'ygo-en-name',
     top: 25,
     fontSize: 77,
     letterSpacing: 0.5,
   },
   spellTrap: {
-    fontFamily: 'ygo-en-race, serif',
+    fontFamily: 'ygo-en-race',
     top: 123,
     fontSize: 36,
     right: 70,
@@ -26,7 +26,7 @@ export default inheritProp({
     height: 107,
   },
   effect: {
-    fontFamily: 'ygo-en-race, serif',
+    fontFamily: 'ygo-en-race',
     top: 742,
     fontSize: 27,
     letterSpacing: 0.5,

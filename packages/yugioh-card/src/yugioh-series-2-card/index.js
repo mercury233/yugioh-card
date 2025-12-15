@@ -1,5 +1,5 @@
+import { Group, Image, Rect } from 'leafer-unified';
 import { Card } from '../card/index.js';
-import { Group, Image } from '@leafer-ui/node';
 import { CompressText } from '../compress-text/index.js';
 import jpStyle from './style/jp-style.js';
 import custom1Style from './style/custom1-style.js';
@@ -59,6 +59,10 @@ export class YugiohSeries2Card extends Card {
 
     this.initLeafer();
     this.setData(data.data);
+  }
+
+  get tag() {
+    return 'YugiohSeries2Card';
   }
 
   draw() {
@@ -228,17 +232,22 @@ export class YugiohSeries2Card extends Card {
 
   drawImage() {
     if (!this.imageLeaf) {
-      this.imageLeaf = new Image();
+      this.imageLeaf = new Rect();
       this.listenImageStatus(this.imageLeaf);
       this.leafer.add(this.imageLeaf);
     }
 
     this.imageLeaf.set({
-      url: this.data.image,
       width: 990,
       height: 1100,
       x: 202,
       y: 468,
+      fill: {
+        type: 'image',
+        url: this.data.image,
+        mode: 'cover',
+        align: 'top',
+      },
       visible: this.data.image,
       zIndex: 10,
     });
@@ -267,7 +276,7 @@ export class YugiohSeries2Card extends Card {
 
     this.packageLeaf.set({
       text: this.data.package,
-      fontFamily: 'ygo-tip, serif',
+      fontFamily: 'ygo-tip',
       fontSize: 33,
       y: 1601,
       zIndex: 30,
@@ -295,6 +304,7 @@ export class YugiohSeries2Card extends Card {
       lineHeight: effect.lineHeight,
       letterSpacing: effect.letterSpacing || 0,
       rtFontSize: effect.rtFontSize,
+      rtStrokeWidth: this.data.descriptionWeight,
       rtTop: effect.rtTop,
       width: this.data.type === 'monster' ? 710 : 1095,
       height: 70,
@@ -329,6 +339,7 @@ export class YugiohSeries2Card extends Card {
       lineHeight: description.lineHeight,
       letterSpacing: description.letterSpacing || 0,
       rtFontSize: description.rtFontSize,
+      rtStrokeWidth: this.data.descriptionWeight,
       rtTop: description.rtTop,
       width: this.data.type === 'monster' ? 710 : 1095,
       height: ['spell', 'trap'].includes(this.data.type) ? 240 : 170,
@@ -363,7 +374,7 @@ export class YugiohSeries2Card extends Card {
     }
     atk.set({
       text: this.atkName + atkText,
-      fontFamily: 'ygo-jp, serif',
+      fontFamily: 'ygo-jp',
       fontSize: 84,
       textAlign: 'justify',
       textJustifyLast: true,
@@ -384,7 +395,7 @@ export class YugiohSeries2Card extends Card {
     }
     def.set({
       text: this.defName + defText,
-      fontFamily: 'ygo-jp, serif',
+      fontFamily: 'ygo-jp',
       fontSize: 84,
       textAlign: 'justify',
       textJustifyLast: true,
@@ -409,7 +420,7 @@ export class YugiohSeries2Card extends Card {
 
     this.passwordLeaf.set({
       text: this.data.password,
-      fontFamily: 'ygo-tip, serif',
+      fontFamily: 'ygo-tip',
       fontSize: 33,
       x: 66,
       y: 1940,

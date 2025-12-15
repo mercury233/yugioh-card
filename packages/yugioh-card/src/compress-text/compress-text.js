@@ -1,6 +1,7 @@
-import cloneDeep from 'lodash/cloneDeep.js';
-import { Group, Text } from '@leafer-ui/node';
-import { splitBreakWord } from './split-break-word.js';
+import { cloneDeep, isEqual } from 'lodash-unified';
+import { Group, Text } from 'leafer-unified';
+import { isBrowser } from '../utils/index.js';
+import { splitBreakWordWithBracket } from './split-break-word.js';
 
 export class CompressText extends Group {
   constructor(data = {}) {
@@ -23,7 +24,7 @@ export class CompressText extends Group {
 
     this.defaultData = {
       text: '',
-      fontFamily: 'ygo-sc, 楷体, serif',
+      fontFamily: 'ygo-sc',
       fontSize: 24,
       fontWeight: 'normal',
       lineHeight: this.baseLineHeight,
@@ -37,7 +38,7 @@ export class CompressText extends Group {
       gradient: false,
       gradientColor1: '#999999',
       gradientColor2: '#ffffff',
-      rtFontFamily: 'ygo-tip, sans-serif',
+      rtFontFamily: 'ygo-tip',
       rtFontSize: 13,
       rtFontWeight: 'bold',
       rtLineHeight: this.baseLineHeight,
@@ -47,7 +48,6 @@ export class CompressText extends Group {
       rtStrokeWidth: 0,
       rtFontScaleX: 1,
       fontScale: 1,
-      key: 0,
       width: 0,
       height: 0,
       x: 0,
@@ -56,39 +56,33 @@ export class CompressText extends Group {
     };
 
     this.initData(data);
+
+    if (isBrowser) {
+      document.fonts.ready.then(() => {
+        setTimeout(() => {
+          this.compressText();
+        }, 250);
+      });
+    }
   }
 
   set(data = {}) {
     data = cloneDeep(data);
     let needCompressText = false;
-    let needLoadFont = false;
     Object.keys(data).forEach(key => {
       const value = data[key] ?? this.defaultData[key];
-      if (JSON.stringify(this[key]) !== JSON.stringify(value)) {
+      if (!isEqual(this[key], value)) {
         this[key] = value;
-        if (['fontFamily', 'rtFontFamily', 'key'].includes(key)) {
-          needLoadFont = true;
-        }
         needCompressText = true;
       }
     });
     if (needCompressText) {
       this.compressText();
     }
-    // 先触发绘制，再触发字体加载
-    if (needLoadFont) {
-      this.loadFont();
-    }
   }
 
   initData(data = {}) {
     this.set(Object.assign(this.defaultData, data));
-  }
-
-  loadFont() {
-    //document.fonts.ready.finally(() => {
-    //  this.compressText();
-    //});
   }
 
   // 获取解析后的文本列表
@@ -114,7 +108,7 @@ export class CompressText extends Group {
         ruby: {
           text: rubyText,
           bold,
-          charList: splitBreakWord(rubyText).map(char => ({ text: char })),
+          charList: splitBreakWordWithBracket(rubyText).map(char => ({ text: char })),
         },
         rt: {
           text: rtText,

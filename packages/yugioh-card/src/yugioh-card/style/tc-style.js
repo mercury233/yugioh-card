@@ -1,7 +1,7 @@
 import { inheritProp } from '../../utils/index.js';
 
 export default inheritProp({
-  fontFamily: 'ygo-tc, 楷体, serif',
+  fontFamily: 'ygo-tc',
   name: {
     top: 91,
     fontSize: 108,

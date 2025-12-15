@@ -1,7 +1,7 @@
 import { inheritProp } from '../../utils/index.js';
 
 export default inheritProp({
-  fontFamily: 'ygo-astral, serif',
+  fontFamily: 'ygo-astral',
   name: {
     top: 107,
     fontSize: 103,

@@ -1,5 +1,9 @@
 <h1 align="center">🎉 游戏王卡片 - Yugioh Card 🎉</h1>
 
+<div align="center">
+  <p>简体中文 | <a href="./README.en.md">English</a></p>
+</div>
+
 <p align="center">
   <a href="https://www.npmjs.org/package/yugioh-card">
     <img src="https://img.shields.io/npm/v/yugioh-card.svg">
@@ -26,6 +30,11 @@
 - 4️⃣ 场地中心卡
 - 5️⃣ 游戏王 2 期
 
+## 🫡 特别感谢
+
+- [LeaferJS](https://www.leaferjs.com/) 提供的强大图形渲染功能
+- [白羽幸鳥](https://tieba.baidu.com/home/main?id=tb.1.d6c63ffd.3YV5T6Q9Z7uIeVVhPlo8hg%3Ft%3D1654573649) 提供的高清卡模
+
 ## 🚩 在线演示
 
 [在线演示](https://kooriookami.github.io/yugioh-card/)
@@ -33,6 +42,8 @@
 ## ⚡ 快速开始
 
 `npm i yugioh-card`
+
+### 浏览器
 
 ```js
 // 可选 YugiohCard, RushDuelCard, YugiohBackCard, FieldCenterCard, YugiohSeries2Card
@@ -46,8 +57,40 @@ const card = new YugiohCard({
   resourcePath: 'xxx', // 静态资源路径，把 src/assets/yugioh-card 文件夹复制到你的项目中或者服务器上
 });
 
-// 导出图片，更多导出参数请参考 https://www.leaferjs.com/ui/guide/export/
-card.leafer.export('xxx.png');
+// 导出图片，更多导出参数请参考 https://www.leaferjs.com/ui/guide/basic/export.html
+card.leafer.export('xxx.png', {
+  screenshot: true,
+  pixelRatio: devicePixelRatio,
+});
+```
+
+### Node.js
+
+`npm i skia-canvas@2`
+
+```js
+import http from 'http';
+import skia from 'skia-canvas';
+import { YugiohCard } from 'yugioh-card';
+
+http.createServer((req, res) => {
+  const card = new YugiohCard({
+    data: {
+      ..., // 参数见下方 Data 属性
+    },
+    resourcePath: 'xxx', // 静态资源路径，把 src/assets/yugioh-card 文件夹复制到你的项目中或者服务器上
+    skia: skia,
+  });
+  card.leafer.export('png', {
+    screenshot: true,
+  }).then(result => {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.write(`<img src="${result.data}" />`);
+    res.end();
+  });
+}).listen(3000, () => {
+    console.log('server is running at http://localhost:3000');
+});
 ```
 
 ## 🔎 示例代码
@@ -61,7 +104,7 @@ card.leafer.export('xxx.png');
 |         属性名         |    说明     |   类型    |                                                         可选值                                                         |                   备注                    |        默认值        |
 |:-------------------:|:---------:|:-------:|:-------------------------------------------------------------------------------------------------------------------:|:---------------------------------------:|:-----------------:|
 |      language       |    语言     |  enum   |                                     'sc' / 'tc' / 'jp' / 'kr' / 'en' / 'astral'                                     |    简体中文 / 繁体中文 / 日文 / 韩文 / 英文 / 星光界文    |       'sc'        |
-|        font         |    字体     |  enum   |                                             '' / 'custom1' / 'custom2'                                              |          默认 / 华康隶书体 / 文鼎中粗隶简繁           |        ''         |
+|        font         |    字体     |  enum   |                                             '' / 'custom1' / 'custom2'                                              |            默认 / 自定义一 / 自定义二             |        ''         |
 |        name         |    卡名     | string  |                                                          —                                                          |                    —                    |        ''         |
 |        color        |   卡名颜色    | string  |                                                          —                                                          |                    —                    |        ''         |
 |        align        |   卡名对齐    |  enum   |                                             'left' / 'center' / 'right'                                             |             左对齐 / 居中 / 右对齐              |      'left'       |
@@ -152,7 +195,7 @@ card.leafer.export('xxx.png');
 |        属性名        |    说明    |   类型    |                                           可选值                                            |                 备注                  |    默认值    |
 |:-----------------:|:--------:|:-------:|:----------------------------------------------------------------------------------------:|:-----------------------------------:|:---------:|
 |     language      |    语言    |  enum   |                                           'jp'                                           |                 日文                  |   'jp'    |
-|       font        |    字体    |  enum   |                                '' / 'custom1' / 'custom2'                                |        默认 / 华康隶书体 / 文鼎中粗隶简繁         |    ''     |
+|       font        |    字体    |  enum   |                                '' / 'custom1' / 'custom2'                                |          默认 / 自定义一 / 自定义二           |    ''     |
 |       name        |    卡名    | string  |                                            —                                             |                  —                  |    ''     |
 |       color       |   卡名颜色   | string  |                                            —                                             |                  —                  |    ''     |
 |       align       |   卡名对齐   |  enum   |                               'left' / 'center' / 'right'                                |           左对齐 / 居中 / 右对齐            |  'left'   |

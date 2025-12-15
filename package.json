@@ -8,12 +8,14 @@
   ],
   "scripts": {
     "dev": "vite",
+    "dev:node": "vite-node --watch src/server.js",
+    "play": "vite --open /play/index.html",
     "build": "vite build",
-    "build:lib": "vite build -- lib",
+    "build:lib": "npx tsc && vite build -- browser-lib && vite build -- node-lib",
     "preview": "vite preview",
     "publish": "npm publish dist/ --registry https://registry.npmjs.org",
-    "lint": "eslint ./src --ext .vue,.js,.ts,.jsx,.tsx",
-    "lint-fix": "eslint --fix ./src --ext .vue,.js,.ts,.jsx,.tsx"
+    "lint": "eslint",
+    "lint-fix": "eslint --fix"
   },
   "repository": {
     "type": "git",
@@ -30,22 +32,31 @@
   "author": "kooriookami",
   "license": "ISC",
   "dependencies": {
-    "@element-plus/icons-vue": "^2.3.1",
-    "element-plus": "^2.8.6",
-    "json-editor-vue": "^0.17.2",
+    "@element-plus/icons-vue": "^2.3.2",
+    "element-plus": "^2.12.0",
+    "json-editor-vue": "^0.18.1",
     "normalize.css": "^8.0.1",
-    "vue": "^3.5.12",
+    "skia-canvas": "^2.0.2",
+    "vue": "^3.5.25",
     "yugioh-card": "workspace:*"
   },
   "devDependencies": {
-    "@iconify/vue": "^4.1.2",
-    "@vitejs/plugin-vue": "^5.1.4",
-    "eslint": "^9.13.0",
+    "@iconify/vue": "^5.0.0",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "eslint": "^9.39.2",
     "eslint-define-config": "^2.1.0",
-    "eslint-plugin-vue": "^9.29.1",
-    "jsonfile": "^6.1.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-vue": "^10.6.2",
+    "globals": "^16.5.0",
+    "jsonfile": "^6.2.0",
     "rollup-plugin-copy": "^3.5.0",
-    "sass": "^1.80.3",
-    "vite": "^5.4.9"
+    "sass-embedded": "^1.96.0",
+    "sort-package-json": "^3.6.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.7",
+    "vite-node": "^5.2.0"
+  },
+  "engines": {
+    "node": ">= 20"
   }
 }

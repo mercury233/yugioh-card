@@ -1,60 +1,18 @@
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { Text, Image, ImageEvent, Leafer, useCanvas } from '@leafer-ui/node';
-import skia from 'skia-canvas';
-//import loaderIcon from '../svg/loader.svg';
-//import imageIcon from '../svg/image.svg';
+import { Text, Image, ImageEvent, Leafer, useCanvas } from 'leafer-unified';
+import { isBrowser, isNode, loadFontBrowser, loadFontNode } from '../utils/index.js';
 
-const loadedCss = {};
-// 动态加载css
-function loadCSS(url) {
-  if (loadedCss[url]) return;
-  const text = readFileSync(url, 'utf-8');
-  const cssDir = dirname(url);
-
-  // 匹配 @font-face 规则
-  const fontFaceRegex = /@font-face\s*\{([^}]+)\}/g;
-  let match;
-
-  while ((match = fontFaceRegex.exec(text)) !== null) {
-    const fontFaceContent = match[1];
-
-    // 提取 font-family
-    const familyMatch = fontFaceContent.match(/font-family:\s*["']([^"']+)["']/);
-    if (!familyMatch) continue;
-
-    const fontFamily = familyMatch[1];
-
-    // 提取所有 url
-    const urlRegex = /url\(["']?([^)"']+)["']?\)/g;
-    const fontUrls = [];
-    let urlMatch;
-
-    while ((urlMatch = urlRegex.exec(fontFaceContent)) !== null) {
-      const fontUrl = urlMatch[1];
-      // 处理相对路径
-      const absolutePath = resolve(cssDir, fontUrl);
-      fontUrls.push(absolutePath);
-    }
-
-    if (fontUrls.length > 0) {
-      try {
-        skia.FontLibrary.use(fontFamily, fontUrls);
-        //console.log(`Loaded font: ${fontFamily}`);
-        loadedCss[url] = true;
-      } catch (error) {
-        console.error(`Failed to load font: ${fontFamily}`, fontUrls, error);
-      }
-    }
-  }
+const fontPathMap = {
+  YugiohCard: '/yugioh/font',
+  YugiohSeries2Card: '/yugioh/font',
+  RushDuelCard: '/rush-duel/font',
 };
 
-export function resetAttr() {
+const resetAttr = () => {
   Text.changeAttr('lineHeight', {
     type: 'percent',
     value: 1.15,
   });
-}
+};
 
 export class Card {
   leafer = null;
@@ -62,20 +20,33 @@ export class Card {
   cardWidth = 100;
   cardHeight = 100;
   data = {};
-  timer = null;
   view = null;
   resourcePath = null;
+  skia = null;
 
   constructor(data = {}) {
     this.view = data.view;
     this.resourcePath = data.resourcePath;
-
+    this.skia = data.skia;
     resetAttr();
-    //loadCSS(`${this.resourcePath}/custom-font/custom-font.css`);
-    loadCSS(`${this.resourcePath}/yugioh/font/ygo-font.css`);
-    //loadCSS(`${this.resourcePath}/rush-duel/font/rd-font.css`);
 
-    useCanvas('skia', skia);
+    if (isNode) {
+      if (!this.skia) {
+        throw new Error('skia-canvas is required in Node environment');
+      }
+      useCanvas('skia', this.skia);
+    }
+
+    const fontPath = fontPathMap[this.tag];
+    if (fontPath) {
+      if (isNode) {
+        loadFontNode(`${this.resourcePath}${fontPath}`, this.skia); // 同步
+      } else {
+        loadFontBrowser(`${this.resourcePath}${fontPath}`).then(() => { // 异步，加载完再绘制一次
+          this.draw();
+        });
+      }
+    }
   }
 
   setData(data = {}) {
@@ -86,7 +57,6 @@ export class Card {
   initLeafer() {
     this.leafer = new Leafer({
       view: this.view,
-      type: 'block',
       width: this.cardWidth,
       height: this.cardHeight,
     });
@@ -97,6 +67,9 @@ export class Card {
   }
 
   listenImageStatus(imageLeaf) {
+    if (isNode) {
+      return;
+    }
     imageLeaf.on(ImageEvent.LOAD, () => {
       this.drawImageStatus(imageLeaf, ImageEvent.LOAD);
     });
@@ -116,13 +89,13 @@ export class Card {
     }
 
     let statusUrl = '';
-    /*
     if (status === ImageEvent.LOAD) {
+      const loaderIcon = new URL('../svg/loader.svg', import.meta.url).href;
       statusUrl = loaderIcon;
     } else if (status === ImageEvent.ERROR) {
+      const imageIcon = new URL('../svg/image.svg', import.meta.url).href;
       statusUrl = imageIcon;
     }
-    */
 
     this.imageStatusLeaf.set({
       url: statusUrl,
@@ -134,23 +107,14 @@ export class Card {
       visible: [ImageEvent.LOAD, ImageEvent.ERROR].includes(status) && url,
       zIndex: zIndex + 1,
     });
-
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
-    if (status === ImageEvent.LOAD) {
-      this.timer = setInterval(() => {
-        this.imageStatusLeaf.rotateOf('center', 3);
-      }, 16.7);
-    }
   }
 
   updateScale() {
-    const ratio = 1; // devicePixelRatio
-    this.leafer.width = this.cardWidth * this.data.scale / ratio;
-    this.leafer.height = this.cardHeight * this.data.scale / ratio;
-    this.leafer.scaleX = this.data.scale / ratio;
-    this.leafer.scaleY = this.data.scale / ratio;
+    const pixelRatio = isBrowser ? devicePixelRatio : 1;
+    this.leafer.pixelRatio = pixelRatio;
+    this.leafer.width = this.cardWidth * this.data.scale / pixelRatio;
+    this.leafer.height = this.cardHeight * this.data.scale / pixelRatio;
+    this.leafer.scaleX = this.data.scale / pixelRatio;
+    this.leafer.scaleY = this.data.scale / pixelRatio;
   }
 }

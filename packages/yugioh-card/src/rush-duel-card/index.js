@@ -1,5 +1,5 @@
+import { Group, Image, Rect, Text } from 'leafer-unified';
 import { Card } from '../card/index.js';
-import { Group, Image, Text } from '@leafer-ui/node';
 import { CompressText } from '../compress-text/index.js';
 import scStyle from './style/sc-style.js';
 import jpStyle from './style/jp-style.js';
@@ -56,6 +56,10 @@ export class RushDuelCard extends Card {
 
     this.initLeafer();
     this.setData(data.data);
+  }
+
+  get tag() {
+    return 'RushDuelCard';
   }
 
   draw() {
@@ -148,7 +152,7 @@ export class RushDuelCard extends Card {
 
     levelText.set({
       text: this.data.level,
-      fontFamily: 'rd-atk-def, sans-serif',
+      fontFamily: 'rd-atk-def',
       fontSize: 116,
       fill: 'white',
       stroke: '#D3100D',
@@ -229,17 +233,22 @@ export class RushDuelCard extends Card {
 
   drawImage() {
     if (!this.imageLeaf) {
-      this.imageLeaf = new Image();
+      this.imageLeaf = new Rect();
       this.listenImageStatus(this.imageLeaf);
       this.leafer.add(this.imageLeaf);
     }
 
     this.imageLeaf.set({
-      url: this.data.image,
       width: 1254,
       height: 1258,
       x: 70,
       y: 200,
+      fill: {
+        type: 'image',
+        url: this.data.image,
+        mode: 'cover',
+        align: 'top',
+      },
       visible: this.data.image,
       zIndex: 10,
     });
@@ -266,7 +275,7 @@ export class RushDuelCard extends Card {
 
     this.packageLeaf.set({
       text: this.data.package,
-      fontFamily: 'rd-tip, sans-serif',
+      fontFamily: 'rd-tip',
       fontSize: 33,
       color: 'white',
       textAlign: 'right',
@@ -297,6 +306,7 @@ export class RushDuelCard extends Card {
       strokeWidth: this.data.descriptionWeight,
       letterSpacing: effect.letterSpacing || 0,
       rtFontSize: effect.rtFontSize,
+      rtStrokeWidth: this.data.descriptionWeight,
       rtTop: effect.rtTop,
       width: 1000,
       height: 80,
@@ -326,6 +336,7 @@ export class RushDuelCard extends Card {
       lineHeight: description.lineHeight,
       letterSpacing: description.letterSpacing || 0,
       rtFontSize: description.rtFontSize,
+      rtStrokeWidth: this.data.descriptionWeight,
       rtTop: description.rtTop,
       width: 1196,
       height: 350,
@@ -357,7 +368,7 @@ export class RushDuelCard extends Card {
 
     maximumAtkText.set({
       text: this.data.maximumAtk,
-      fontFamily: 'rd-atk-def, sans-serif',
+      fontFamily: 'rd-atk-def',
       fontSize: 97,
       fill: 'white',
       stroke: 'black',
@@ -401,7 +412,7 @@ export class RushDuelCard extends Card {
 
     atkText.set({
       text: this.data.atk >= 0 ? this.data.atk : '?',
-      fontFamily: 'rd-atk-def, sans-serif',
+      fontFamily: 'rd-atk-def',
       fontSize: 97,
       fill: 'white',
       stroke: 'black',
@@ -414,7 +425,7 @@ export class RushDuelCard extends Card {
 
     defText.set({
       text: this.data.def >= 0 ? this.data.def : '?',
-      fontFamily: 'rd-atk-def, sans-serif',
+      fontFamily: 'rd-atk-def',
       fontSize: 97,
       fill: 'white',
       stroke: 'black',

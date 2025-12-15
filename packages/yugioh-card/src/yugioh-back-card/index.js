@@ -1,5 +1,5 @@
+import { Image } from 'leafer-unified';
 import { Card } from '../card/index.js';
-import { Image } from '@leafer-ui/node';
 
 export class YugiohBackCard extends Card {
   cardLeaf = null;
@@ -23,6 +23,10 @@ export class YugiohBackCard extends Card {
 
     this.initLeafer();
     this.setData(data.data);
+  }
+
+  get tag() {
+    return 'YugiohBackCard';
   }
 
   draw() {
