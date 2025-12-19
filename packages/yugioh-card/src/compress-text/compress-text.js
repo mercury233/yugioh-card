@@ -19,8 +19,8 @@ export class CompressText extends Group {
     this.group = null; // Leafer文本组
     this.needCompressTwice = false; // 是否需要二次压缩
     this.bounds = {}; // 宽高信息
-    this.avoidStartChars = '。；：，、”」）·× '; // 避免在行首的字符
-    this.avoidEndChars = '“「（●'; // 避免在行尾的字符
+    this.avoidStartChars = '.。;；:：,，、”」)）·× '; // 避免在行首的字符
+    this.avoidEndChars = '“「(（●'; // 避免在行尾的字符
 
     this.defaultData = {
       text: '',
@@ -418,11 +418,6 @@ export class CompressText extends Group {
         }
       });
     });
-  }
-
-  // 检查是否应该避免在此处换行（当前字符是否不能在行首）
-  shouldAvoidLineBreak(char) {
-    return this.avoidStartChars.includes(char.text);
   }
 
   // 获取前一个字符
