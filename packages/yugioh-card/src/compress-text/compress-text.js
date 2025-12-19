@@ -366,8 +366,7 @@ export class CompressText extends Group {
             char.width = char.originalWidth * this.textScale;
           }
 
-          // 应用行距缩放
-          charLeaf.lineHeight = char.originalHeight * this.lineHeightScale;
+          // 应用行距缩放，修改 char.height 而不是 charLeaf.lineHeight
           char.height = char.originalHeight * this.lineHeightScale;
 
           if (rt.text) {
