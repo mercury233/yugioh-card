@@ -26,7 +26,7 @@ export const loadFontBrowser = fontPath => {
       data.forEach(family => {
         const font = new FontFace(
           family,
-          `url(${fontPath}/${family}.woff) format('woff')`,
+          `url(${fontPath}/${family}.woff2) format('woff2')`,
           {
             display: 'swap',
           },
@@ -53,7 +53,7 @@ export const loadFontNode = (fontPath, skia) => {
   if (skia) {
     data.forEach(family => {
       skia.FontLibrary.use(family, [
-        `${fontPath}/${family}.woff`,
+        `${fontPath}/${family}.woff2`,
       ]);
     });
   }

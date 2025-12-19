@@ -1,7 +1,7 @@
 import { inheritProp } from '../../utils/index.js';
 
 export default inheritProp({
-  fontFamily: '文泉驿微米黑',
+  fontFamily: 'ygo-heiti',
   name: {
     top: 50,
     left: 56,
