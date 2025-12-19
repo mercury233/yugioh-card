@@ -20,9 +20,10 @@ export default inheritProp({
     rtFontScaleX: 1.2,
   },
   pendulumDescription: {
-    top: 626,
-    fontSize: 18,
-    lineHeight: 1.18,
+    top: 625,
+    height: 106,
+    fontSize: 18.5,
+    lineHeight: 1.15,
     rtFontSize: 6,
     rtTop: -2,
   },
@@ -38,7 +39,7 @@ export default inheritProp({
   },
   description: {
     fontSize: 18.5,
-    lineHeight: 1.18,
+    lineHeight: 1.15,
     rtFontSize: 6,
     rtTop: -3,
   },

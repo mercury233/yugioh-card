@@ -18,21 +18,21 @@ export default inheritProp({
     },
   },
   pendulumDescription: {
-    top: 625,
+    top: 624,
     fontSize: 18,
-    letterSpacing: 1,
-    lineHeight: 1.2,
+    letterSpacing: 0.3,
+    lineHeight: 1.17,
   },
   effect: {
-    top: 741,
+    top: 742,
     fontSize: 22,
     letterSpacing: 1,
     textIndent: -2,
-    lineHeight: 1.2,
+    lineHeight: 1.15,
   },
   description: {
     fontSize: 18,
     letterSpacing: 0.3,
-    lineHeight: 1.2,
+    lineHeight: 1.17,
   },
 });

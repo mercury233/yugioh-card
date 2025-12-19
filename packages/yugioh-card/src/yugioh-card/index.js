@@ -354,27 +354,25 @@ export class YugiohCard extends Card {
     const leftPendulum = this.pendulumLeaf.children[0];
     const rightPendulum = this.pendulumLeaf.children[1];
 
-    let left = 72;
     leftPendulum.set({
       text: this.data.pendulumScale,
       fontFamily: 'ygo-atk-def',
-      fontSize: 48,
+      fontSize: 50,
       fill: 'black',
       letterSpacing: -5,
-      x: left,
-      y: 666,
+      x: 73,
+      y: 663,
       around: { type: 'percent', x: 0.5, y: 0 },
     });
 
-    left = 608;
     rightPendulum.set({
       text: this.data.pendulumScale,
       fontFamily: 'ygo-atk-def',
-      fontSize: 48,
+      fontSize: 50,
       fill: 'black',
       letterSpacing: -5,
-      x: left,
-      y: 666,
+      x: 608,
+      y: 663,
       around: { type: 'percent', x: 0.5, y: 0 },
     });
 
@@ -537,7 +535,7 @@ export class YugiohCard extends Card {
       fontFamily = 'ygo-en-italic';
     }
 
-    let height = 180;
+    let height = description.height || 180;
     if (!['spell', 'trap'].includes(this.data.type)) {
       if (this.showEffect) {
         height -= effectHeight;
@@ -562,9 +560,9 @@ export class YugiohCard extends Card {
       rtFontSize: description.rtFontSize,
       rtStrokeWidth: this.data.descriptionWeight,
       rtTop: description.rtTop,
-      width: 571,
+      width: description.width || 571,
       height,
-      x: 54,
+      x: description.left || 54,
       y: effect.top + effectHeight,
       zIndex: 30,
     });

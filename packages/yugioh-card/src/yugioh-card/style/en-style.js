@@ -22,7 +22,7 @@ export default inheritProp({
   pendulumDescription: {
     top: 623,
     fontSize: 20,
-    lineHeight: 1.02,
+    lineHeight: 1.05,
     height: 107,
   },
   effect: {
@@ -30,10 +30,14 @@ export default inheritProp({
     top: 742,
     fontSize: 27,
     letterSpacing: 0.5,
-    lineHeight: 1.02,
+    textIndent: -2,
+    lineHeight: 1,
   },
   description: {
+    left: 55,
+    width: 569,
+    height: 178,
     fontSize: 20,
-    lineHeight: 1.02,
+    lineHeight: 1.05,
   },
 });

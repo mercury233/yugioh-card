@@ -19,9 +19,9 @@ export default inheritProp({
     },
   },
   pendulumDescription: {
-    top: 625,
+    top: 624,
     fontSize: 18,
-    letterSpacing: 1,
+    letterSpacing: 0.3,
     lineHeight: 1.2,
   },
   effect: {
