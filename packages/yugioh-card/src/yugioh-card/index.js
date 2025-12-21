@@ -371,7 +371,7 @@ export class YugiohCard extends Card {
       fontSize: 50,
       fill: 'black',
       letterSpacing: -5,
-      x: 608,
+      x: 609,
       y: 663,
       around: { type: 'percent', x: 0.5, y: 0 },
     });
