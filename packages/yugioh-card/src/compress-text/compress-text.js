@@ -555,8 +555,8 @@ export class CompressText extends Group {
                 { offset: 0.75, color: this.gradientColor2 },
               ],
             },
-            stroke: 'rgba(0, 0, 0, 0.2)',
-            strokeWidth: fontSize * 0.025,
+            stroke: `rgba(0, 0, 0, ${this.fontFamily == 'ygo-en-name' ? 0.1 : 0.2})`,
+            strokeWidth: fontSize * (this.fontFamily == 'ygo-en-name' ? 0.015 : 0.025),
             strokeAlign: 'outside',
             innerShadow: {
               blur: fontSize * 0.005,
