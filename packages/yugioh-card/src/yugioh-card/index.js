@@ -40,6 +40,7 @@ export class YugiohCard extends Card {
   cardWidth = 680;
   cardHeight = 986;
   imageAspectRatio = 1;
+  fullArt = false;
 
   data = {
     language: 'sc',
@@ -50,6 +51,7 @@ export class YugiohCard extends Card {
     gradient: false,
     gradientColor1: '#999999',
     gradientColor2: '#ffffff',
+    gradientStrokeAlpha: 0.2,
     type: 'monster',
     attribute: 'dark',
     icon: '',
@@ -92,18 +94,40 @@ export class YugiohCard extends Card {
   }
 
   draw() {
+    if (this.data.image) {
+      try {
+        const buffer = readFileSync(this.data.image);
+        const dimensions = imageSize(buffer);
+        this.imageAspectRatio = dimensions.width / dimensions.height;
+      } catch (e) {
+        this.imageAspectRatio = 1;
+      }
+    }
+    if (this.imageAspectRatio < 0.7) {
+      this.fullArt = true;
+      this.data.gradientColor1 ='#e0e0c0';
+      this.data.gradientColor2 ='#ffffff';
+      this.data.gradientStrokeAlpha = 0.5;
+    }
+
     this.drawCard();
     this.drawName();
     this.drawAttribute();
     this.drawLevel();
     this.drawRank();
     this.drawSpellTrap();
-    this.drawImage();
-    this.drawMask();
+    if (this.fullArt) {
+      this.drawFullArt();
+      this.drawTextbox();
+    }
+    else {
+      this.drawImage();
+      this.drawMask();
+    }
     this.drawPendulum();
     this.drawPendulumDescription();
     this.drawPackage();
-    this.drawLinkArrow();
+    if (!this.fullArt) this.drawLinkArrow();
     this.drawEffect();
     this.drawDescription();
     this.drawAtkDefLink();
@@ -147,6 +171,7 @@ export class YugiohCard extends Card {
       gradient: this.data.gradient,
       gradientColor1: this.data.gradientColor1,
       gradientColor2: this.data.gradientColor2,
+      gradientStrokeAlpha: this.data.gradientStrokeAlpha,
       rtFontSize: name.rtFontSize,
       rtTop: name.rtTop,
       rtColor: this.autoNameColor,
@@ -305,16 +330,6 @@ export class YugiohCard extends Card {
       this.leafer.add(this.imageLeaf);
     }
 
-    if (this.data.image && this.data.type === 'pendulum') {
-      try {
-        const buffer = readFileSync(this.data.image);
-        const dimensions = imageSize(buffer);
-        this.imageAspectRatio = dimensions.width / dimensions.height;
-      } catch (e) {
-        this.imageAspectRatio = 1;
-      }
-    }
-
     this.imageLeaf.set({
       url: this.data.image,
       width: this.data.type === 'pendulum' ? 585 : 512,
@@ -323,6 +338,24 @@ export class YugiohCard extends Card {
       y: this.data.type === 'pendulum' ? 177 : 182,
       visible: this.data.image,
       zIndex: 10,
+    });
+  }
+
+  drawFullArt() {
+    if (!this.imageLeaf) {
+      this.imageLeaf = new Image();
+      this.listenImageStatus(this.imageLeaf);
+      this.leafer.add(this.imageLeaf);
+    }
+
+    this.imageLeaf.set({
+      url: this.data.image,
+      width: this.cardWidth,
+      height: this.cardHeight,
+      x: 0,
+      y: 0,
+      visible: this.data.image,
+      zIndex: 1,
     });
   }
 
@@ -337,6 +370,21 @@ export class YugiohCard extends Card {
       url: maskUrl,
       x: this.data.type === 'pendulum' ? 35 : 59,
       y: this.data.type === 'pendulum' ? 166 : 156,
+      zIndex: 20,
+    });
+  }
+
+  drawTextbox() {
+    if (!this.maskLeaf) {
+      this.maskLeaf = new Image();
+      this.leafer.add(this.maskLeaf);
+    }
+
+    const maskUrl = this.data.type === 'pendulum' ? `${this.baseImage}/card-textbox-pendulum.png` : `${this.baseImage}/card-textbox.png`;
+    this.maskLeaf.set({
+      url: maskUrl,
+      x: this.data.type === 'pendulum' ? 35 : 37,
+      y: this.data.type === 'pendulum' ? 606 : 727,
       zIndex: 20,
     });
   }
