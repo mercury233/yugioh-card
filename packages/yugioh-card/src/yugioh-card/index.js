@@ -118,7 +118,7 @@ export class YugiohCard extends Card {
     this.drawSpellTrap();
     if (this.fullArt) {
       this.drawFullArt();
-      this.drawTextbox();
+      this.drawFullArtTextbox();
     }
     else {
       this.drawImage();
@@ -374,13 +374,13 @@ export class YugiohCard extends Card {
     });
   }
 
-  drawTextbox() {
+  drawFullArtTextbox() {
     if (!this.maskLeaf) {
       this.maskLeaf = new Image();
       this.leafer.add(this.maskLeaf);
     }
 
-    const maskUrl = this.data.type === 'pendulum' ? `${this.baseImage}/card-textbox-pendulum.png` : `${this.baseImage}/card-textbox.png`;
+    const maskUrl = this.data.type === 'pendulum' ? `${this.baseImage}/card-textbox-fullart-pendulum.png` : `${this.baseImage}/card-textbox-fullart.png`;
     this.maskLeaf.set({
       url: maskUrl,
       x: this.data.type === 'pendulum' ? 35 : 37,
