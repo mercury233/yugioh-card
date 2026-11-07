@@ -264,6 +264,7 @@ export class CompressText extends Group {
     }
 
     // 应用最佳的缩放比例
+    // 若字号已不能继续缩小且搜索仍无解，两个最佳比例会有意保留初始值
     this.textScale = bestTextScale;
     this.lineHeightScale = bestLineHeightScale;
     this.updateTextScale();
