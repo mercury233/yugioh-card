@@ -32,7 +32,6 @@ export class CompressText extends Group {
       wordSpacing: 0,
       firstLineCompress: false,
       textAlign: 'justify',
-      textJustifyLast: false,
       color: 'black',
       strokeWidth: 0,
       gradient: false,
@@ -258,7 +257,7 @@ export class CompressText extends Group {
   // 对齐ruby
   alignRuby() {
     const charList = this.parseList.map(item => item.ruby.charList).flat();
-    const alignLine = this.textScale < 1 || ['center', 'right'].includes(this.textAlign) || this.textJustifyLast ? this.currentLine + 1 : this.currentLine;
+    const alignLine = this.textScale < 1 || ['center', 'right'].includes(this.textAlign) ? this.currentLine + 1 : this.currentLine;
     for (let line = 0; line < alignLine; line++) {
       // 确保在对齐前删除行尾空格
       this.removeLineLastSpace(line);
