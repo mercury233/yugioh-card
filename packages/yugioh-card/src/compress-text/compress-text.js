@@ -344,6 +344,13 @@ export class CompressText extends Group {
     this.currentX = 0;
     this.currentY = 0;
     this.currentLine = 0;
+    // 每次试排都从未定位状态开始，行尾空格在下一轮仍可能回到行内。
+    this.parseList.forEach(item => {
+      item.ruby.charList.forEach(char => {
+        char.line = -1;
+        char.charLeaf.visible = true;
+      });
+    });
 
     let noBreakCharList = [];
     let noBreakTotalWidth = 0;
@@ -480,7 +487,8 @@ export class CompressText extends Group {
         const lastPaddingLeft = lastChar.paddingLeft || 0;
         const lastPaddingRight = lastChar.paddingRight || 0;
         this.currentX -= lastChar.width + lastPaddingLeft + lastPaddingRight;
-        lastCharLeaf.destroy();
+        // 试排尚未确定最终换行，不能销毁下一轮可能回到行内的空格。
+        lastCharLeaf.visible = false;
         lastChar.line = -1;
         // 递归继续删除行尾空格
         this.removeLineLastSpace(line);
