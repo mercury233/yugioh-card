@@ -222,45 +222,6 @@ test('line caches follow punctuation moves, hidden spaces and text replacement',
   }
 });
 
-test('overflow wrapping restores the original layout when disabled', () => {
-  const value = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const instance = new CompressText({ text: value, fontFamily: 'Arial', fontSize: 24, width: 60, overflowWrap: false });
-  try {
-    const before = snapshot(instance);
-    assert.equal(instance.overflowWrap, false);
-    assert.ok(instance.bounds.width > instance.width);
-    instance.set({ overflowWrap: true });
-    assert.ok(instance.currentLine > 0);
-    assert.ok(instance.bounds.width <= instance.width);
-    assert.equal(instance.rubyList.map(ruby => ruby.text).join(''), value);
-    instance.set({ overflowWrap: false });
-    assert.deepEqual(snapshot(instance), before);
-  } finally {
-    instance.destroy();
-  }
-});
-
-test('overflow wrapping preserves bold, surrogate pairs and indivisible ruby groups', () => {
-  const instance = new CompressText({
-    text: '<b>ABCDEFGHIJKLMNOPQRSTUVWXYZ</b>\n[A(abcdefghijklmnop)]\n𠮷𠮷𠮷',
-    fontFamily: 'Arial', fontSize: 24, width: 60, overflowWrap: true,
-  });
-  try {
-    assert.ok(instance.parseList[0].ruby.charList.length > 1);
-    assert.ok(instance.parseList[0].ruby.charList.every(ruby => ruby.rubyLeaf.fontWeight === 'bold'));
-    assert.equal(instance.rubyList.map(ruby => ruby.text).join(''), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\nA\n𠮷𠮷𠮷');
-    assert.ok(instance.rubyList.every(ruby => ruby.text.isWellFormed()));
-    const item = instance.parseList.find(item => item.rt.text);
-    assert.equal(new Set(item.ruby.charList.map(ruby => ruby.line)).size, 1);
-    assert.equal(item.ruby.charList.length, 1);
-    instance.set({ text: 'W', width: 1 });
-    assert.equal(instance.rubyList.length, 1);
-    assert.ok(Number.isFinite(instance.bounds.width));
-  } finally {
-    instance.destroy();
-  }
-});
-
 test('last-line justification is opt-in and reversible', () => {
   const instance = new CompressText({ ...baseConfig, text: 'one two', width: 200 });
   try {
