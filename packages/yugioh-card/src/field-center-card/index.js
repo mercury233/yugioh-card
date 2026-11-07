@@ -1,4 +1,4 @@
-import { Image, Rect } from 'leafer-unified';
+import { Image, Rect } from '#leafer';
 import { Card } from '../card/index.js';
 
 export class FieldCenterCard extends Card {

@@ -1,4 +1,4 @@
-import { Group, Image, Rect } from 'leafer-unified';
+import { Group, Image, Rect } from '#leafer';
 import { Card } from '../card/index.js';
 import { CompressText } from '../compress-text/index.js';
 import jpStyle from './style/jp-style.js';
