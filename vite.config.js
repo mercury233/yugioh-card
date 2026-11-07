@@ -66,9 +66,14 @@ export default defineConfig(({ mode }) => {
       })] : []),
     ],
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, 'src'),
-      },
+      alias: [
+        { find: '@', replacement: path.resolve(__dirname, 'src') },
+        { find: /^yugioh-card$/, replacement: path.resolve(__dirname, 'packages/index.js') },
+      ],
+    },
+    optimizeDeps: {
+      // 全量入口必须先初始化 leafer-ui；预打包拆分后 film 可能先于浏览器平台执行。
+      exclude: ['leafer'],
     },
     build: buildConfigMap[buildTarget],
   };
