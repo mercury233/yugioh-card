@@ -9,6 +9,9 @@ export class CompressText extends Group {
     this.baseLineHeight = 1.15; // 基础行高
     this.noCompressText = '●①②③④⑤⑥⑦⑧⑨⑩'; // 不压缩的文本
     this.parseList = []; // 解析后的文本列表
+    this.charList = [];
+    this.charInfoMap = new Map();
+    this.charLineMap = new Map();
     this.newlineList = []; // 根据换行符分割的文本列表
     this.currentX = 0; // 当前行的x坐标
     this.currentY = 0; // 当前行的y坐标
@@ -141,6 +144,14 @@ export class CompressText extends Group {
     this.needCompressTwice = false;
     this.parseList = this.getParseList();
     this.newlineList = this.getNewlineList();
+    this.charList = [];
+    this.charInfoMap.clear();
+    this.parseList.forEach(item => {
+      item.ruby.charList.forEach(char => {
+        this.charInfoMap.set(char, { previousChar: this.charList.at(-1), item });
+        this.charList.push(char);
+      });
+    });
     if (this.group) {
       this.group.destroy();
     }
@@ -212,8 +223,10 @@ export class CompressText extends Group {
 
   // 优化文本以适应高度
   optimizeTextToFitHeight() {
-    const charList = this.parseList.map(item => item.ruby.charList).flat();
-    if (!charList.length) return;
+    const lastChar = this.charList.at(-1);
+    if (!lastChar) return;
+    // 注音扩宽后的二次排版可能仍带有压缩比例，只有未压缩的布局才可直接跳过搜索。
+    if (this.textScale === 1 && this.lineHeightScale === 1 && this.currentY + lastChar.height <= this.height) return;
 
     let bestTextScale = 1;
     let bestLineHeightScale = 1;
@@ -226,7 +239,6 @@ export class CompressText extends Group {
         this.lineHeightScale = lineHeightScale;
         this.updateTextScale();
 
-        const lastChar = charList[charList.length - 1];
         const currentHeight = this.currentY + lastChar.height;
 
         if (currentHeight <= this.height) {
@@ -256,13 +268,12 @@ export class CompressText extends Group {
 
   // 对齐ruby
   alignRuby() {
-    const charList = this.parseList.map(item => item.ruby.charList).flat();
     const alignLine = this.textScale < 1 || ['center', 'right'].includes(this.textAlign) ? this.currentLine + 1 : this.currentLine;
     for (let line = 0; line < alignLine; line++) {
       // 确保在对齐前删除行尾空格
       this.removeLineLastSpace(line);
 
-      const lineList = charList.filter(item => item.line === line && item.charLeaf && !item.charLeaf.destroyed);
+      const lineList = this.charLineMap.get(line) || [];
       if (lineList.length) {
         const lastChar = lineList[lineList.length - 1];
         const lastCharLeaf = lastChar.charLeaf;
@@ -343,12 +354,11 @@ export class CompressText extends Group {
     this.currentX = 0;
     this.currentY = 0;
     this.currentLine = 0;
+    this.charLineMap.clear();
     // 每次试排都从未定位状态开始，行尾空格在下一轮仍可能回到行内。
-    this.parseList.forEach(item => {
-      item.ruby.charList.forEach(char => {
-        char.line = -1;
-        char.charLeaf.visible = true;
-      });
+    this.charList.forEach(char => {
+      char.line = -1;
+      char.charLeaf.visible = true;
     });
 
     let noBreakCharList = [];
@@ -385,13 +395,15 @@ export class CompressText extends Group {
             if (this.width && char.text !== '\n' && this.currentX && this.currentX + totalWidth > this.width) {
               // 避头尾处理
               const shouldAvoidCurrentCharAtStart = this.avoidStartChars.includes(char.text);
-              const prevChar = this.getPreviousChar(char);
+              const prevChar = this.charInfoMap.get(char).previousChar;
               const shouldAvoidPrevCharAtEnd = prevChar && this.avoidEndChars.includes(prevChar.text);
               let moveChars = [];
               if ((shouldAvoidCurrentCharAtStart || shouldAvoidPrevCharAtEnd) && prevChar?.line === this.currentLine) {
-                const prevItem = this.parseList.find(item => item.ruby.charList.includes(prevChar));
+                const prevItem = this.charInfoMap.get(prevChar).item;
                 moveChars = prevItem.rt.text ? prevItem.ruby.charList : [prevChar];
                 this.currentX = moveChars[0].charLeaf.x - (moveChars[0].paddingLeft || 0);
+                const lineList = this.charLineMap.get(this.currentLine);
+                lineList.splice(lineList.length - moveChars.length, moveChars.length);
                 moveChars.forEach(movedChar => {
                   movedChar.line = -1;
                 });
@@ -424,20 +436,12 @@ export class CompressText extends Group {
     });
   }
 
-  // 获取前一个字符
-  getPreviousChar(currentChar) {
-    const charList = this.parseList.map(item => item.ruby.charList).flat();
-    const currentIndex = charList.indexOf(currentChar);
-    return currentIndex > 0 ? charList[currentIndex - 1] : null;
-  }
-
   // 更新文本大小
   updateFontSize() {
     this.textScale = 1;
     this.lineHeightScale = 1;
     const fontSize = this.fontSize * this.renderFontScale;
-    const charList = this.parseList.map(item => item.ruby.charList).flat();
-    charList.forEach(char => {
+    this.charList.forEach(char => {
       const charLeaf = char.charLeaf;
       charLeaf.fontSize = fontSize;
       charLeaf.lineHeight = fontSize * this.lineHeight;
@@ -464,6 +468,10 @@ export class CompressText extends Group {
     charLeaf.y = this.currentY;
     this.currentX += char.width + paddingLeft + paddingRight;
     char.line = this.currentLine;
+    if (!this.charLineMap.has(this.currentLine)) {
+      this.charLineMap.set(this.currentLine, []);
+    }
+    this.charLineMap.get(this.currentLine).push(char);
   }
 
   // 添加行
@@ -477,21 +485,18 @@ export class CompressText extends Group {
 
   // 删除行尾空格
   removeLineLastSpace(line) {
-    const charList = this.parseList.map(item => item.ruby.charList).flat();
-    const lineList = charList.filter(item => item.line === line && item.charLeaf && !item.charLeaf.destroyed);
-    if (lineList.length) {
+    const lineList = this.charLineMap.get(line);
+    while (lineList?.length) {
       const lastChar = lineList[lineList.length - 1];
-      if (lastChar.text === ' ') {
-        const lastCharLeaf = lastChar.charLeaf;
-        const lastPaddingLeft = lastChar.paddingLeft || 0;
-        const lastPaddingRight = lastChar.paddingRight || 0;
-        this.currentX -= lastChar.width + lastPaddingLeft + lastPaddingRight;
-        // 试排尚未确定最终换行，不能销毁下一轮可能回到行内的空格。
-        lastCharLeaf.visible = false;
-        lastChar.line = -1;
-        // 递归继续删除行尾空格
-        this.removeLineLastSpace(line);
-      }
+      if (lastChar.text !== ' ') break;
+      const lastCharLeaf = lastChar.charLeaf;
+      const lastPaddingLeft = lastChar.paddingLeft || 0;
+      const lastPaddingRight = lastChar.paddingRight || 0;
+      this.currentX -= lastChar.width + lastPaddingLeft + lastPaddingRight;
+      // 试排尚未确定最终换行，不能销毁下一轮可能回到行内的空格。
+      lastCharLeaf.visible = false;
+      lastChar.line = -1;
+      lineList.pop();
     }
   }
 
@@ -585,9 +590,8 @@ export class CompressText extends Group {
       width: 0,
       height: 0,
     };
-    const charList = this.parseList.map(item => item.ruby.charList).flat();
     for (let line = 0; line < this.currentLine + 1; line++) {
-      const lineList = charList.filter(item => item.line === line);
+      const lineList = this.charLineMap.get(line) || [];
       if (lineList.length) {
         const lastChar = lineList[lineList.length - 1];
         const lastCharLeaf = lastChar.charLeaf;
