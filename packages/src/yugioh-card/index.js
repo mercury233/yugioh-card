@@ -12,8 +12,6 @@ import heitiStyle from './style/heiti-style.js';
 import astralStyle from './style/astral-style.js';
 import custom1Style from './style/custom1-style.js';
 import custom2Style from './style/custom2-style.js';
-import { readFileSync } from 'node:fs';
-import { imageSize } from 'image-size';
 
 export class YugiohCard extends Card {
   cardLeaf = null;
@@ -39,8 +37,6 @@ export class YugiohCard extends Card {
   twentiethLeaf = null;
   cardWidth = 680;
   cardHeight = 986;
-  imageAspectRatio = 1;
-  fullArt = false;
 
   data = {
     language: 'sc',
@@ -52,10 +48,13 @@ export class YugiohCard extends Card {
     gradientColor1: '#999999',
     gradientColor2: '#ffffff',
     gradientStrokeAlpha: 0.2,
+    gradientStrokeWidthRate: 0.025,
     type: 'monster',
     attribute: 'dark',
     icon: '',
     image: '',
+    imageAspectRatio: 1,
+    fullArt: false,
     cardType: 'normal',
     pendulumType: 'normal-pendulum',
     level: 0,
@@ -94,25 +93,13 @@ export class YugiohCard extends Card {
   }
 
   draw() {
-    this.imageAspectRatio = 1;
-    if (this.data.image) {
-      try {
-        const buffer = readFileSync(this.data.image);
-        const dimensions = imageSize(buffer);
-        this.imageAspectRatio = dimensions.width / dimensions.height;
-      } catch (e) {
-        this.imageAspectRatio = 1;
-      }
-    }
-    this.fullArt = this.imageAspectRatio < 0.7;
-
     this.drawCard();
     this.drawName();
     this.drawAttribute();
     this.drawLevel();
     this.drawRank();
     this.drawSpellTrap();
-    if (this.fullArt) {
+    if (this.data.fullArt) {
       this.drawFullArt();
       this.drawFullArtTextbox();
     }
@@ -165,9 +152,10 @@ export class YugiohCard extends Card {
       textAlign: this.data.align || 'left',
       color: this.data.color || this.autoNameColor,
       gradient: this.data.gradient,
-      gradientColor1: this.fullArt ? '#e0e0c0' : this.data.gradientColor1,
-      gradientColor2: this.fullArt ? '#ffffff' : this.data.gradientColor2,
-      gradientStrokeAlpha: this.fullArt ? 0.5 : this.data.gradientStrokeAlpha,
+      gradientColor1: this.data.gradientColor1,
+      gradientColor2: this.data.gradientColor2,
+      gradientStrokeAlpha: this.data.gradientStrokeAlpha,
+      gradientStrokeWidthRate: this.data.gradientStrokeWidthRate,
       rtFontSize: name.rtFontSize,
       rtTop: name.rtTop,
       rtColor: this.autoNameColor,
@@ -329,7 +317,7 @@ export class YugiohCard extends Card {
     this.imageLeaf.set({
       url: this.data.image,
       width: this.data.type === 'pendulum' ? 585 : 512,
-      height: this.data.type === 'pendulum' ? (this.imageAspectRatio > 1 ? 438 : 749) : 512,
+      height: this.data.type === 'pendulum' ? (this.data.imageAspectRatio > 1 ? 438 : 749) : 512,
       x: this.data.type === 'pendulum' ? 48 : 85,
       y: this.data.type === 'pendulum' ? 177 : 182,
       visible: this.data.image,
@@ -522,7 +510,7 @@ export class YugiohCard extends Card {
     });
 
     this.linkArrowLeaf.set({
-      visible: !this.fullArt && this.data.type === 'monster' && this.data.cardType === 'link',
+      visible: !this.data.fullArt && this.data.type === 'monster' && this.data.cardType === 'link',
       zIndex: 120,
     });
   }
