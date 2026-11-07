@@ -37,8 +37,7 @@
     "lodash": "^4.17.23",
     "lodash-es": "^4.17.23",
     "lodash-unified": "^1.0.3",
-    "@leafer-ui/node": "^2.3.3",
-    "image-size": "^2.0.2"
+    "@leafer-ui/node": "^2.3.3"
   },
   "imports": {
     "#leafer": {

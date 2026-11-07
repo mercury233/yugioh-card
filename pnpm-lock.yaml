@@ -23,9 +23,6 @@ importers:
       element-plus:
         specifier: ^2.13.6
         version: 2.13.6(typescript@6.0.2)(vue@3.5.30(typescript@6.0.2))
-      image-size:
-        specifier: ^2.0.2
-        version: 2.1.0
       json-editor-vue:
         specifier: ^0.18.1
         version: 0.18.1(vue@3.5.30(typescript@6.0.2))
@@ -1970,11 +1967,6 @@ packages:
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
-
-  image-size@2.1.0:
-    resolution: {integrity: sha512-6Dbisa46RsgeAh3TMSFL2i8+uIFG+/LRmz6Q2oscSJJvXo1sOw3EgNO4M8jPl1P+gR1atJLDPrpclX4IHz63sA==}
-    engines: {node: '>=18'}
-    hasBin: true
 
   immutable-json-patch@6.0.2:
     resolution: {integrity: sha512-KwCA5DXJiyldda8SPha1zB+6+vbEi5/jRRcYii/6yFXlyu9ZjiSH/wPq8Ri2Hk8iGjjTMcHW3Z21S4MOpl7sOw==}
@@ -5273,8 +5265,6 @@ snapshots:
 
   ignore@5.3.2: {}
 
-  image-size@2.1.0: {}
-
   immutable-json-patch@6.0.2: {}
 
   immutable@5.1.5: {}
@@ -6423,7 +6413,6 @@ snapshots:
       '@leafer-ui/node': 2.3.3
       '@leafer/node': 2.3.3(@leafer-ui/interface@2.3.3)(@leafer/interface@2.3.3)
       css-line-break: 2.1.0
-      image-size: 2.1.0
       leafer: 2.3.3(@leafer-ui/interface@2.3.3)(@leafer/interface@2.3.3)
       leafer-unified: 1.0.3(@leafer/node@2.3.3(@leafer-ui/interface@2.3.3)(@leafer/interface@2.3.3))(leafer@2.3.3(@leafer-ui/interface@2.3.3)(@leafer/interface@2.3.3))
       lodash: 4.17.23
