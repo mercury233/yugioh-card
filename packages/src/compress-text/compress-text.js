@@ -447,6 +447,10 @@ export class CompressText extends Group {
       char.originalHeight = bounds.height;
       char.width = bounds.width;
       char.height = bounds.height;
+      if (char.text === ' ') {
+        char.originalWidth += this.wordSpacing;
+        char.width += this.wordSpacing;
+      }
     });
     this.updateTextScale();
   }
