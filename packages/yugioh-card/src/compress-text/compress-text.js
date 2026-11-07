@@ -388,24 +388,20 @@ export class CompressText extends Group {
               const shouldAvoidCurrentCharAtStart = this.avoidStartChars.includes(char.text);
               const prevChar = this.getPreviousChar(char);
               const shouldAvoidPrevCharAtEnd = prevChar && this.avoidEndChars.includes(prevChar.text);
-
-              if (shouldAvoidCurrentCharAtStart || shouldAvoidPrevCharAtEnd) {
-                // 如果当前字符不能在行首，或前一个字符不能在行尾
-                // 需要把前一个字符也移到下一行
-                if (prevChar && prevChar.charLeaf) {
-                  // 移除前一个字符的位置，将其移到下一行
-                  const prevTotalWidth = prevChar.width + (prevChar.paddingLeft || 0) + (prevChar.paddingRight || 0);
-                  this.currentX -= prevTotalWidth;
-                  prevChar.charLeaf.x = 0; // 临时设置，会在换行后重新定位
-                  prevChar.line = -1; // 标记为待重新定位
-                }
+              let moveChars = [];
+              if ((shouldAvoidCurrentCharAtStart || shouldAvoidPrevCharAtEnd) && prevChar?.line === this.currentLine) {
+                const prevItem = this.parseList.find(item => item.ruby.charList.includes(prevChar));
+                moveChars = prevItem.rt.text ? prevItem.ruby.charList : [prevChar];
+                this.currentX = moveChars[0].charLeaf.x - (moveChars[0].paddingLeft || 0);
+                moveChars.forEach(movedChar => {
+                  movedChar.line = -1;
+                });
               }
-              this.addRow();
-
-              // 重新定位被移到下一行的前一个字符
-              if ((shouldAvoidCurrentCharAtStart || shouldAvoidPrevCharAtEnd) && prevChar && prevChar.line === -1) {
-                this.positionChar(prevChar);
+              // 注音组占满当前行时，保留整组与标点溢出，避免拆组或制造空行。
+              if (!moveChars.length || this.currentX > 0) {
+                this.addRow();
               }
+              moveChars.forEach(movedChar => this.positionChar(movedChar));
             }
             this.positionChar(char);
             if (char.text === '\n') {
@@ -415,7 +411,7 @@ export class CompressText extends Group {
         });
 
         if (noBreakCharList.length) {
-          if (this.width && this.currentX + noBreakTotalWidth > this.width) {
+          if (this.width && this.currentX && this.currentX + noBreakTotalWidth > this.width) {
             this.addRow();
           }
           noBreakCharList.forEach(char => {
