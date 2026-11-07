@@ -3,6 +3,9 @@ import { Group, Text } from '#leafer';
 import { isBrowser } from '../utils/index.js';
 import { splitBreakWordWithBracket } from './split-break-word.js';
 
+const rubyTokenPattern = /\[[^\[\]()\r\n]+\([^\[\]()\r\n]*\)]/;
+const rubyRtPattern = /^\[([^\[\]()\r\n]+)\(([^\[\]()\r\n]*)\)]$/;
+
 export class CompressText extends Group {
   constructor(data = {}) {
     super();
@@ -91,13 +94,13 @@ export class CompressText extends Group {
   // 获取解析后的文本列表
   getParseList() {
     let bold = false;
-    // 正则的捕获圆括号不要随意修改
-    return String(this.text).trimEnd().split(new RegExp(`(\\[.*?\\(.*?\\)]|<b>|</b>|\n|[${this.noCompressText}])`)).filter(value => value).map(value => {
+    return String(this.text).trimEnd().split(new RegExp(`(${rubyTokenPattern.source}|<b>|</b>|\n|[${this.noCompressText}])`)).filter(value => value).map(value => {
       let rubyText = value;
       let rtText = '';
-      if (/\[.*?\(.*?\)]/g.test(value)) {
-        rubyText = value.replace(/\[(.*?)\((.*?)\)]/g, '$1');
-        rtText = value.replace(/\[(.*?)\((.*?)\)]/g, '$2');
+      const rubyMatch = value.match(rubyRtPattern);
+      if (rubyMatch) {
+        rubyText = rubyMatch[1];
+        rtText = rubyMatch[2];
       }
       if (value === '<b>') {
         bold = true;
