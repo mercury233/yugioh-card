@@ -2,7 +2,7 @@
  * 压缩文本渲染模块。
  *
  * 该模块提供 CompressText 类，用于在 Leafer 场景中渲染带有 ruby 注音的文本，
- * 并在给定宽高约束下完成解析、换行、压缩、对齐、注音定位以及视觉效果处理。
+ * 并在给定宽高约束下完成解析、换行、压缩、对齐、注音定位以及最终边界统计。
  *
  * 整体处理流程包括：
  * 1. 解析原始文本并拆分成 ruby/rt 结构。
@@ -10,7 +10,7 @@
  * 3. 创建正文与注音叶子并测量尺寸。
  * 4. 对超宽连续纯文本执行布局阶段的回退切段。
  * 5. 根据宽高限制执行首行压缩、末行压缩和自动缩小。
- * 6. 完成正文对齐、注音定位、渐变效果与最终边界统计。
+ * 6. 完成正文对齐、注音定位与最终边界统计。
  *
  * 其中，超长连续文本的处理属于布局阶段的回退逻辑，不会改变默认分词模块的基础语义。
  * 在浏览器环境中，模块还会在字体加载完成后自动重新执行一次排版，以确保测量结果准确。
@@ -33,11 +33,6 @@ const autoFontScaleMin = 0.5; // 本轮字号比例高于此阈值时允许继�
 const autoFontScaleStep = 0.05; // 自动缩小时本轮字号比例的递减步长。
 const rtLetterSpacingMaxRate = 9; // 注音拉伸时最大字距相对本轮注音字号的倍率。
 const rtCompressRate = 0.6; // 注音过宽时允许压缩到的最小横向比例。
-const gradientStops = [0, 0.4, 0.55, 0.6, 0.75]; // 渐变填充的关键色标位置。
-const gradientInnerShadowColor = 'rgba(0, 0, 0, 0.3)'; // 渐变模式下内阴影颜色。
-const gradientInnerShadowBlurRate = 0.005; // 渐变模式下内阴影模糊相对字号的倍率。
-const gradientInnerShadowOffsetXRate = 0.015; // 渐变模式下内阴影横向偏移相对字号的倍率。
-const gradientInnerShadowOffsetYRate = 0.015; // 渐变模式下内阴影纵向偏移相对字号的倍率。
 
 export class CompressText extends Group {
   /**
@@ -75,11 +70,6 @@ export class CompressText extends Group {
       textJustifyLast: false,
       color: 'black',
       strokeWidth: 0,
-      gradient: false,
-      gradientColor1: '#999999',
-      gradientColor2: '#ffffff',
-      gradientStrokeAlpha: 0.2,
-      gradientStrokeWidthRate: 0.025,
       rtFontFamily: 'ygo-tip',
       rtFontSize: 13,
       rtFontWeight: 'bold',
@@ -100,12 +90,19 @@ export class CompressText extends Group {
     this.initData(data);
 
     if (isBrowser) {
-      document.fonts.ready.then(() => {
-        setTimeout(() => {
-          this.compressText();
-        }, 250);
-      });
+      this.fontSet = document.fonts;
+      this.onFontsLoaded = () => {
+        if (!this.destroyed) this.compressText();
+      };
+      // ready 可能在异步获取字体列表前就已完成，后续加载仍需重新测量，不能沿用回退字体的字宽。
+      this.fontSet.addEventListener('loadingdone', this.onFontsLoaded);
+      this.fontSet.ready.then(this.onFontsLoaded);
     }
+  }
+
+  destroy() {
+    this.fontSet?.removeEventListener('loadingdone', this.onFontsLoaded);
+    super.destroy();
   }
 
   /**
@@ -475,7 +472,7 @@ export class CompressText extends Group {
    * 2. 重建解析缓存。
    * 3. 重建承载 group。
    * 4. 创建正文叶子并处理超宽回退。
-   * 5. 计算压缩、对齐、注音、渐变与边界。
+   * 5. 计算压缩、对齐、注音与边界。
    * 6. 将结果挂入当前 Group。
    */
   compressText() {
@@ -486,7 +483,6 @@ export class CompressText extends Group {
     this.compressRuby();
     this.alignRuby();
     this.createRt();
-    this.createGradient();
     this.createBounds();
     this.add(this.group);
   }
@@ -1157,44 +1153,7 @@ export class CompressText extends Group {
     this.applyRtWidthStrategy(context);
   }
 
-  // 视觉效果与边界
-
-  /**
-   * 为正文叶子应用渐变、描边和阴影效果。
-   *
-   * 仅在 gradient 开启时生效。
-   */
-  createGradient() {
-    if (this.gradient) {
-      const fontSize = this.getCurrentFontSize();
-      this.rubyList.forEach(ruby => {
-        const rubyLeaf = ruby.rubyLeaf;
-        rubyLeaf.set({
-          fill: {
-            type: 'linear',
-            from: 'top-left',
-            to: 'bottom-right',
-            stops: [
-              { offset: gradientStops[0], color: this.gradientColor1 },
-              { offset: gradientStops[1], color: this.gradientColor2 },
-              { offset: gradientStops[2], color: this.gradientColor2 },
-              { offset: gradientStops[3], color: this.gradientColor1 },
-              { offset: gradientStops[4], color: this.gradientColor2 },
-            ],
-          },
-          stroke: `rgba(0, 0, 0, ${this.gradientStrokeAlpha})`,
-          strokeWidth: fontSize * this.gradientStrokeWidthRate,
-          strokeAlign: 'outside',
-          innerShadow: {
-            blur: fontSize * gradientInnerShadowBlurRate,
-            x: fontSize * gradientInnerShadowOffsetXRate,
-            y: fontSize * gradientInnerShadowOffsetYRate,
-            color: gradientInnerShadowColor,
-          },
-        });
-      });
-    }
-  }
+  // 边界统计
 
   /**
    * 根据当前行分组结果统计最终渲染边界。

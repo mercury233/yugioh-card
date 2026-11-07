@@ -111,15 +111,12 @@ test('punctuation wrapping keeps each ruby group on one line without an initial 
   }
 });
 
-test('default reset and local gradient configuration remain available', () => {
-  const instance = new CompressText({ ...baseConfig, text: 'ABC', fontScale: 1.2, gradient: true, gradientStrokeAlpha: 0.35 });
+test('default reset preserves configured font scale', () => {
+  const instance = new CompressText({ ...baseConfig, text: 'ABC', fontScale: 1.2 });
   try {
     assert.equal(instance.defaultData.fontScale, 1);
     instance.set({ fontScale: undefined });
     assert.equal(instance.fontScale, 1);
-    const leaf = instance.parseList[0].ruby.charList[0].rubyLeaf;
-    assert.equal(leaf.stroke, 'rgba(0, 0, 0, 0.35)');
-    assert.ok(leaf.innerShadow);
     assert.equal(instance.textJustifyLast, false);
   } finally {
     instance.destroy();
@@ -270,25 +267,5 @@ test('empty first-line compression keeps a finite scale', () => {
     assert.deepEqual(instance.bounds, { width: 0, height: 0 });
   } finally {
     instance.destroy();
-  }
-});
-
-test('gradient stroke parameters are independent of the font family', () => {
-  for (const fontFamily of ['ygo-en-name', 'ygo-sc']) {
-    const instance = new CompressText({ text: 'ABC', fontFamily, fontSize: 24, gradient: true });
-    try {
-      for (const [alpha, rate] of [[0.1, 0.015], [0.35, 0.04], [0, 0]]) {
-        instance.set({ gradientStrokeAlpha: alpha, gradientStrokeWidthRate: rate });
-        const leaf = instance.rubyList[0].rubyLeaf;
-        assert.equal(leaf.stroke, `rgba(0, 0, 0, ${alpha})`);
-        assert.equal(leaf.strokeWidth, 24 * rate);
-      }
-      instance.set({ gradientStrokeAlpha: undefined, gradientStrokeWidthRate: undefined });
-      const leaf = instance.rubyList[0].rubyLeaf;
-      assert.equal(leaf.stroke, 'rgba(0, 0, 0, 0.2)');
-      assert.equal(leaf.strokeWidth, 24 * 0.025);
-    } finally {
-      instance.destroy();
-    }
   }
 });

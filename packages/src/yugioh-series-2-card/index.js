@@ -1,6 +1,7 @@
 import { Group, Image, Rect } from '#leafer';
 import { Card } from '../card/index.js';
 import { CompressText } from '../compress-text/index.js';
+import { ThemedText } from '../text-theme/themed-text.js';
 import jpStyle from './style/jp-style.js';
 import custom1Style from './style/custom1-style.js';
 import custom2Style from './style/custom2-style.js';
@@ -28,9 +29,12 @@ export class YugiohSeries2Card extends Card {
     name: '',
     color: '',
     align: 'left',
-    gradient: false,
-    gradientColor1: '#999999',
-    gradientColor2: '#ffffff',
+    gradientTheme: '',
+    gradient: null,
+    gradientColor1: null,
+    gradientColor2: null,
+    gradientStrokeAlpha: null,
+    gradientStrokeWidthRate: null,
     type: 'monster',
     attribute: 'dark',
     icon: '',
@@ -99,7 +103,7 @@ export class YugiohSeries2Card extends Card {
     const { name } = this.style;
 
     if (!this.nameLeaf) {
-      this.nameLeaf = new CompressText();
+      this.nameLeaf = new ThemedText();
       this.leafer.add(this.nameLeaf);
     }
     this.nameLeaf.set({
@@ -109,9 +113,14 @@ export class YugiohSeries2Card extends Card {
       letterSpacing: name.letterSpacing || 0,
       textAlign: this.data.align || 'left',
       color: this.data.color || this.autoNameColor,
+      gradientTheme: this.data.gradientTheme,
       gradient: this.data.gradient,
       gradientColor1: this.data.gradientColor1,
       gradientColor2: this.data.gradientColor2,
+      gradientStrokeAlpha: this.data.gradientStrokeAlpha,
+      gradientStrokeWidthRate: this.data.gradientStrokeWidthRate,
+      fullArt: this.data.fullArt,
+      language: this.data.language,
       rtFontSize: name.rtFontSize,
       rtTop: name.rtTop,
       rtColor: this.autoNameColor,

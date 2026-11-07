@@ -1,6 +1,7 @@
 import { Group, Image, Rect, Text } from '#leafer';
 import { Card } from '../card/index.js';
 import { CompressText } from '../compress-text/index.js';
+import { ThemedText } from '../text-theme/themed-text.js';
 import { numberToFull } from '../utils/index.js';
 import scStyle from './style/sc-style.js';
 import tcStyle from './style/tc-style.js';
@@ -37,6 +38,9 @@ export class YugiohCard extends Card {
   twentiethLeaf = null;
   cardWidth = 680;
   cardHeight = 986;
+  measuredImageAspectRatio = 1;
+  imageRevision = 0;
+  ready = null;
 
   data = {
     language: 'sc',
@@ -44,17 +48,18 @@ export class YugiohCard extends Card {
     name: '',
     color: '',
     align: 'left',
-    gradient: false,
-    gradientColor1: '#999999',
-    gradientColor2: '#ffffff',
-    gradientStrokeAlpha: 0.2,
-    gradientStrokeWidthRate: 0.025,
+    gradientTheme: '',
+    gradient: null,
+    gradientColor1: null,
+    gradientColor2: null,
+    gradientStrokeAlpha: null,
+    gradientStrokeWidthRate: null,
     type: 'monster',
     attribute: 'dark',
     icon: '',
     image: '',
-    imageAspectRatio: 1,
-    fullArt: false,
+    imageAspectRatio: null,
+    fullArt: null,
     cardType: 'normal',
     pendulumType: 'normal-pendulum',
     level: 0,
@@ -92,6 +97,57 @@ export class YugiohCard extends Card {
     return 'YugiohCard';
   }
 
+  get imageAspectRatio() {
+    return this.data.imageAspectRatio ?? this.measuredImageAspectRatio;
+  }
+
+  get fullArt() {
+    return this.data.fullArt ?? this.imageAspectRatio < 0.7;
+  }
+
+  /**
+   * 先测量图片再绘制；导出前应等待 ready，后续更新可等待 setData 的返回值。
+   * 检测结果与输入配置分开保存，避免更换图片后沿用上张图片的自动判断。
+   */
+  setData(data = {}) {
+    Object.assign(this.data, data);
+    const revision = ++this.imageRevision;
+    const source = this.data.image;
+    this.ready = (async () => {
+      let aspectRatio = 1;
+      if (source && this.data.imageAspectRatio == null) {
+        try {
+          const image = this.skia ? await this.skia.loadImage(source) : await new Promise((resolve, reject) => {
+            const image = new globalThis.Image();
+            image.onload = () => {
+              image.onload = image.onerror = null;
+              resolve({ width: image.naturalWidth, height: image.naturalHeight });
+            };
+            image.onerror = () => {
+              image.onload = image.onerror = null;
+              reject(new Error('Failed to load image'));
+            };
+            image.src = source;
+          });
+          try {
+            if (image.width > 0 && image.height > 0) {
+              aspectRatio = image.width / image.height;
+            }
+          } finally {
+            image.dispose?.();
+          }
+        } catch {
+          aspectRatio = 1;
+        }
+      }
+      // 较早发起的检测可能较晚完成，不能覆盖新的图片或向已销毁的场景绘制。
+      if (revision !== this.imageRevision || this.leafer?.destroyed) return;
+      this.measuredImageAspectRatio = aspectRatio;
+      this.draw();
+    })();
+    return this.ready;
+  }
+
   draw() {
     this.drawCard();
     this.drawName();
@@ -99,7 +155,7 @@ export class YugiohCard extends Card {
     this.drawLevel();
     this.drawRank();
     this.drawSpellTrap();
-    if (this.data.fullArt) {
+    if (this.fullArt) {
       this.drawFullArt();
       this.drawFullArtTextbox();
     }
@@ -139,7 +195,7 @@ export class YugiohCard extends Card {
     const { name } = this.style;
 
     if (!this.nameLeaf) {
-      this.nameLeaf = new CompressText();
+      this.nameLeaf = new ThemedText();
       this.leafer.add(this.nameLeaf);
     }
     this.nameLeaf.set({
@@ -151,11 +207,14 @@ export class YugiohCard extends Card {
       wordSpacing: name.wordSpacing || 0,
       textAlign: this.data.align || 'left',
       color: this.data.color || this.autoNameColor,
+      gradientTheme: this.data.gradientTheme,
       gradient: this.data.gradient,
       gradientColor1: this.data.gradientColor1,
       gradientColor2: this.data.gradientColor2,
       gradientStrokeAlpha: this.data.gradientStrokeAlpha,
       gradientStrokeWidthRate: this.data.gradientStrokeWidthRate,
+      fullArt: this.fullArt,
+      language: this.data.language,
       rtFontSize: name.rtFontSize,
       rtTop: name.rtTop,
       rtColor: this.autoNameColor,
@@ -317,7 +376,7 @@ export class YugiohCard extends Card {
     this.imageLeaf.set({
       url: this.data.image,
       width: this.data.type === 'pendulum' ? 585 : 512,
-      height: this.data.type === 'pendulum' ? (this.data.imageAspectRatio > 1 ? 438 : 749) : 512,
+      height: this.data.type === 'pendulum' ? (this.imageAspectRatio > 1 ? 438 : 749) : 512,
       x: this.data.type === 'pendulum' ? 48 : 85,
       y: this.data.type === 'pendulum' ? 177 : 182,
       visible: this.data.image,
@@ -510,7 +569,7 @@ export class YugiohCard extends Card {
     });
 
     this.linkArrowLeaf.set({
-      visible: !this.data.fullArt && this.data.type === 'monster' && this.data.cardType === 'link',
+      visible: !this.fullArt && this.data.type === 'monster' && this.data.cardType === 'link',
       zIndex: 120,
     });
   }
