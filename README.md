@@ -66,7 +66,7 @@ card.leafer.export('xxx.png', {
 
 ### Node.js
 
-`npm i skia-canvas@2`
+`npm i skia-canvas@4`
 
 ```js
 import http from 'http';

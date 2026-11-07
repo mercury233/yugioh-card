@@ -18,10 +18,10 @@
   "author": "kooriookami",
   "license": "MIT",
   "dependencies": {
-    "@leafer/node": "^1.12.2",
+    "@leafer/node": "^2.3.3",
     "css-line-break": "^2.1.0",
     "image-size": "^2.0.2",
-    "leafer": "^1.12.2",
+    "leafer": "^2.3.3",
     "leafer-unified": "^1.0.3",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
