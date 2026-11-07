@@ -94,6 +94,7 @@ export class YugiohCard extends Card {
   }
 
   draw() {
+    this.imageAspectRatio = 1;
     if (this.data.image) {
       try {
         const buffer = readFileSync(this.data.image);
@@ -103,12 +104,7 @@ export class YugiohCard extends Card {
         this.imageAspectRatio = 1;
       }
     }
-    if (this.imageAspectRatio < 0.7) {
-      this.fullArt = true;
-      this.data.gradientColor1 ='#e0e0c0';
-      this.data.gradientColor2 ='#ffffff';
-      this.data.gradientStrokeAlpha = 0.5;
-    }
+    this.fullArt = this.imageAspectRatio < 0.7;
 
     this.drawCard();
     this.drawName();
@@ -127,7 +123,7 @@ export class YugiohCard extends Card {
     this.drawPendulum();
     this.drawPendulumDescription();
     this.drawPackage();
-    if (!this.fullArt) this.drawLinkArrow();
+    this.drawLinkArrow();
     this.drawEffect();
     this.drawDescription();
     this.drawAtkDefLink();
@@ -169,9 +165,9 @@ export class YugiohCard extends Card {
       textAlign: this.data.align || 'left',
       color: this.data.color || this.autoNameColor,
       gradient: this.data.gradient,
-      gradientColor1: this.data.gradientColor1,
-      gradientColor2: this.data.gradientColor2,
-      gradientStrokeAlpha: this.data.gradientStrokeAlpha,
+      gradientColor1: this.fullArt ? '#e0e0c0' : this.data.gradientColor1,
+      gradientColor2: this.fullArt ? '#ffffff' : this.data.gradientColor2,
+      gradientStrokeAlpha: this.fullArt ? 0.5 : this.data.gradientStrokeAlpha,
       rtFontSize: name.rtFontSize,
       rtTop: name.rtTop,
       rtColor: this.autoNameColor,
@@ -526,7 +522,7 @@ export class YugiohCard extends Card {
     });
 
     this.linkArrowLeaf.set({
-      visible: this.data.type === 'monster' && this.data.cardType === 'link',
+      visible: !this.fullArt && this.data.type === 'monster' && this.data.cardType === 'link',
       zIndex: 120,
     });
   }
