@@ -25,9 +25,10 @@ export default inheritProp({
     lineHeight: 1.05,
     height: 107,
   },
-  effect: {
+  monsterType: {
     fontFamily: 'ygo-en-race',
     top: 742,
+    height: 27,
     fontSize: 27,
     letterSpacing: 0.5,
     textIndent: -2,

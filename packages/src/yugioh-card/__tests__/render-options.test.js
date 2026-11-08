@@ -1,6 +1,38 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { YugiohCard } from '../index.js';
+import { YugiohSeries2Card } from '../../yugioh-series-2-card/index.js';
+
+test('monster type height controls description placement independently of typography', () => {
+  for (const CardClass of [YugiohCard, YugiohSeries2Card]) {
+    let descriptionOptions;
+    let monsterTypeOptions;
+    const target = {
+      data: { type: 'monster', language: 'sc', monsterType: '龙族/通常', atkBar: true },
+      style: {
+        monsterType: { top: 742, height: 30, minHeight: 4, fontSize: 22, lineHeight: 1.15 },
+        description: { fontSize: 18, lineHeight: 1.17 },
+      },
+      showMonsterType: true,
+      monsterTypeLeaf: { set(value) { monsterTypeOptions = value; } },
+      descriptionLeaf: { set(value) { descriptionOptions = value; } },
+    };
+    for (const fontSize of [22, 26]) {
+      target.style.monsterType.fontSize = fontSize;
+      for (const height of [30, 40]) {
+        target.style.monsterType.height = height;
+        CardClass.prototype.drawMonsterType.call(target);
+        CardClass.prototype.drawDescription.call(target);
+        assert.equal(monsterTypeOptions.height, height);
+        assert.equal(descriptionOptions.y, 742 + height);
+        if (CardClass === YugiohCard) assert.equal(descriptionOptions.height, 180 - height - 27);
+      }
+    }
+    target.showMonsterType = false;
+    CardClass.prototype.drawDescription.call(target);
+    assert.equal(descriptionOptions.y, 746);
+  }
+});
 
 test('card names forward theme and variant selection', () => {
   for (const fullArt of [false, true]) {
