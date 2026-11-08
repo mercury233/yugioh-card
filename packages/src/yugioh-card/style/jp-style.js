@@ -24,6 +24,7 @@ export default inheritProp({
     height: 106,
     fontSize: 18.5,
     lineHeight: 1.15,
+    minTextScale: 0.66,
     rtFontSize: 6,
     rtTop: -2,
   },
@@ -41,6 +42,7 @@ export default inheritProp({
   description: {
     fontSize: 18.5,
     lineHeight: 1.15,
+    minTextScale: 0.66,
     rtFontSize: 6,
     rtTop: -3,
   },

@@ -9,7 +9,7 @@
  * 2. 按显式换行符分组构建布局输入。
  * 3. 创建正文与注音叶子并测量尺寸。
  * 4. 对超宽连续纯文本执行布局阶段的回退切段。
- * 5. 根据宽高限制执行首行压缩、末行压缩和自动缩小。
+ * 5. 根据宽高限制执行首行压缩、正文横向压缩和自动缩小。
  * 6. 完成正文对齐、注音定位与最终边界统计。
  *
  * 其中，超长连续文本的处理属于布局阶段的回退逻辑，不会改变默认分词模块的基础语义。
@@ -22,12 +22,10 @@ import { splitBreakWordWithBracket } from './split-break-word.js';
 const rubyTokenPattern = /\[[^\[\]()\r\n]+\([^\[\]()\r\n]*\)]/;
 const rubyRtPattern = /^\[([^\[\]()\r\n]+)\(([^\[\]()\r\n]*)\)]$/;
 const baseLineHeight = 1.15; // 默认正文与注音行高倍率。
-const noCompressText = '●①②③④⑤⑥⑦⑧⑨⑩'; // 不参与末行压缩的特殊字符集合。
+const noCompressText = '●①②③④⑤⑥⑦⑧⑨⑩'; // 不参与正文横向压缩的特殊字符集合。
 const avoidStartChars = '.。;；:：,，、”」)）·× '; // 避免在行首的特殊字符集合。
 const avoidEndChars = '“「(（●'; // 避免在行尾的特殊字符集合。
-const compressTextMinScale = 0.6; // 高度适配时末段横向压缩搜索的下限。
 const compressTextScaleStep = 0.02; // 高度适配时横向压缩搜索的步长。
-const compressLineHeightMinScale = 0.9; // 高度适配时行距缩放搜索的下限。
 const compressLineHeightScaleStep = 0.01; // 高度适配时行距缩放搜索的步长。
 const autoFontScaleMin = 0.5; // 本轮字号比例高于此阈值时允许继续缩小。
 const autoFontScaleStep = 0.05; // 自动缩小时本轮字号比例的递减步长。
@@ -80,6 +78,8 @@ export class CompressText extends Group {
       rtStrokeWidth: 0,
       rtFontScaleX: 1,
       fontScale: 1,
+      minTextScale: 0.8,
+      minLineHeightScale: 0.9,
       width: 0,
       height: 0,
       x: 0,
@@ -597,7 +597,7 @@ export class CompressText extends Group {
   /**
    * 计算首行压缩时的最大可用缩放比例。
    *
-   * 该方法只考虑显式换行分组中的第一段，返回值会截断到三位小数并且不超过 1。
+   * 该方法只考虑显式换行分组中的第一段，返回恰好容纳一行的比例且不放大文字。
    *
    * @returns {number} 首行可用的压缩比例。
    */
@@ -615,7 +615,7 @@ export class CompressText extends Group {
       return 1;
     }
 
-    return Math.min(Math.floor(maxWidth / firstNewlineTotalWidth * 1000) / 1000, 1);
+    return Math.min(maxWidth / firstNewlineTotalWidth, 1);
   }
 
   // 压缩与对齐
@@ -623,7 +623,7 @@ export class CompressText extends Group {
   /**
    * 根据当前宽高限制计算正文压缩比例。
    *
-   * 先将首个显式换行段压缩到一行，再根据高度限制搜索末段横向缩放和整体行距。
+   * 先将首个显式换行段压缩到一行，再根据高度限制搜索正文横向缩放和整体行距。
    * 高度仍不足时逐步减小本轮字号比例，保留本地自动缩小策略。
    */
   compressRuby() {
@@ -640,7 +640,7 @@ export class CompressText extends Group {
   /**
    * 优化正文布局以适应高度限制。
    *
-   * 联合搜索末段横向压缩与整体行距，仍然放不下时逐步缩小本轮字号，不修改用户配置。
+   * 联合搜索正文横向压缩与整体行距，仍然放不下时逐步缩小本轮字号，不修改用户配置。
    * 注音扩宽后的二次排版也会进入搜索；若缩小到下限仍无解，保留默认横向与行距比例。
    */
   optimizeTextToFitHeight() {
@@ -654,8 +654,10 @@ export class CompressText extends Group {
     let bestHeight = Number.MAX_VALUE;
 
     // 尝试不同的文本缩放和行距缩放组合
-    for (let textScale = 1; textScale >= compressTextMinScale; textScale -= compressTextScaleStep) {
-      for (let lineHeightScale = 1; lineHeightScale >= compressLineHeightMinScale; lineHeightScale -= compressLineHeightScaleStep) {
+    for (let step = 0; step <= Math.ceil((1 - this.minTextScale) / compressTextScaleStep); step++) {
+      const textScale = Math.max(this.minTextScale, 1 - step * compressTextScaleStep);
+      for (let lineStep = 0; lineStep <= Math.ceil((1 - this.minLineHeightScale) / compressLineHeightScaleStep); lineStep++) {
+        const lineHeightScale = Math.max(this.minLineHeightScale, 1 - lineStep * compressLineHeightScaleStep);
         this.textScale = textScale;
         this.lineHeightScale = lineHeightScale;
         this.updateTextScale();
@@ -863,9 +865,12 @@ export class CompressText extends Group {
 
     let noBreakCharList = [];
     let noBreakTotalWidth = 0;
+    this.firstLineTextScale = this.width ? this.getFirstLineScale() : 1;
+    // 首段能在压缩下限内独占一行时，只压到所需宽度；过长的正文段仍正常换行。
+    const fitFirstParagraph = this.firstLineCompress || this.firstLineTextScale === 1 ||
+      (this.newlineList.length > 1 && this.textScale < 1 && this.firstLineTextScale >= this.minTextScale);
 
     this.newlineList.forEach((newline, newlineIndex) => {
-      const lastNewline = newlineIndex === this.newlineList.length - 1;
       newline.forEach(item => {
         const ruby = item.ruby;
         const rt = item.rt;
@@ -873,11 +878,10 @@ export class CompressText extends Group {
         charList.forEach(char => {
           const paddingLeft = char.paddingLeft || 0;
           const paddingRight = char.paddingRight || 0;
-          if (this.firstLineCompress && newlineIndex === 0) {
+          if (fitFirstParagraph && newlineIndex === 0) {
             // 首行压缩到一行
             this.updateRubyScale(char, this.firstLineTextScale);
-          } else if (!noCompressText.includes(char.text) && lastNewline) {
-            // 只压缩最后一行
+          } else if (!noCompressText.includes(char.text)) {
             this.updateRubyScale(char, this.textScale);
           } else {
             this.updateRubyScale(char, 1);
@@ -891,7 +895,7 @@ export class CompressText extends Group {
             noBreakTotalWidth += char.width + paddingLeft + paddingRight;
           } else {
             const totalWidth = char.width + paddingLeft + paddingRight;
-            if (this.width && char.text !== '\n' && this.currentX && this.currentX + totalWidth > this.width) {
+            if (this.width && char.text !== '\n' && this.currentX && this.currentX + totalWidth > this.width + 1e-8) {
               // 避头尾处理
               const shouldAvoidCurrentCharAtStart = avoidStartChars.includes(char.text);
               const prevChar = this.charInfoMap.get(char).previousChar;
@@ -921,7 +925,7 @@ export class CompressText extends Group {
         });
 
         if (noBreakCharList.length) {
-          if (this.width && this.currentX && this.currentX + noBreakTotalWidth > this.width) {
+          if (this.width && this.currentX && this.currentX + noBreakTotalWidth > this.width + 1e-8) {
             this.addLine();
           }
           noBreakCharList.forEach(char => {

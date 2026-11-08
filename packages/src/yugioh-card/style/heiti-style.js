@@ -27,10 +27,11 @@ export default inheritProp({
     fontSize: 18,
     letterSpacing: 0.5,
     lineHeight: 1.17,
+    minTextScale: 0.9,
   },
   monsterType: {
     top: 742,
-    height: 25,
+    height: 26,
     fontSize: 21,
     letterSpacing: 2,
     textIndent: -10,
@@ -42,5 +43,6 @@ export default inheritProp({
     fontSize: 18,
     letterSpacing: 0.5,
     lineHeight: 1.17,
+    minTextScale: 0.9,
   },
 });

@@ -28,7 +28,7 @@ export default inheritProp({
   monsterType: {
     fontFamily: 'ygo-en-race',
     top: 742,
-    height: 27,
+    height: 28,
     fontSize: 27,
     letterSpacing: 0.5,
     textIndent: -2,
@@ -37,7 +37,7 @@ export default inheritProp({
   description: {
     left: 55,
     width: 569,
-    height: 178,
+    height: 180,
     fontSize: 20,
     lineHeight: 1.05,
   },

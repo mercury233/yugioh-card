@@ -342,6 +342,8 @@ export class YugiohSeries2Card extends Card {
       fontFamily: description.fontFamily,
       fontSize: description.fontSize,
       fontScale: this.data.descriptionZoom,
+      minTextScale: description.minTextScale,
+      minLineHeightScale: description.minLineHeightScale,
       textAlign: this.data.descriptionAlign ? 'center' : 'justify',
       firstLineCompress: this.data.firstLineCompress,
       strokeWidth: this.data.descriptionWeight,

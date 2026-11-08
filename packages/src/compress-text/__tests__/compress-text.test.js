@@ -39,6 +39,66 @@ test('bounds skip empty lines left by wrapped leading spaces', () => {
   }
 });
 
+test('horizontal compression covers every paragraph while preserving a fitting first paragraph', () => {
+  for (const firstParagraph of ['ABC', text]) {
+    const instance = new CompressText({ ...baseConfig, text: `${firstParagraph}\n${text}\n${text}` });
+    try {
+      instance.textScale = 0.8;
+      instance.updateTextScale();
+      instance.newlineList.forEach((paragraph, index) => {
+        const expectedScale = index === 0 && firstParagraph === 'ABC' ? 1 : 0.8;
+        for (const char of paragraph.flatMap(item => item.ruby.charList)) {
+          assert.equal(char.rubyLeaf.scaleX, expectedScale);
+        }
+      });
+      instance.textScale = 1;
+      instance.updateTextScale();
+      assert.ok(instance.rubyList.every(char => char.rubyLeaf.scaleX === 1));
+    } finally {
+      instance.destroy();
+    }
+  }
+});
+
+test('explicit first-line compression still overrides general paragraph compression', () => {
+  const instance = new CompressText({ ...baseConfig, text: `${text}\n${text}`, firstLineCompress: true });
+  try {
+    instance.textScale = 0.8;
+    instance.updateTextScale();
+    assert.ok(instance.firstLineTextScale < 0.8);
+    for (const char of instance.newlineList[0].flatMap(item => item.ruby.charList)) {
+      assert.equal(char.rubyLeaf.scaleX, instance.firstLineTextScale);
+      assert.equal(char.line, 0);
+    }
+    for (const char of instance.newlineList[1].flatMap(item => item.ruby.charList)) {
+      assert.equal(char.rubyLeaf.scaleX, 0.8);
+    }
+  } finally {
+    instance.destroy();
+  }
+});
+
+test('a compressible first paragraph fits exactly instead of sharing the body scale', () => {
+  const instance = new CompressText({ ...baseConfig, text: `one two three\n${text}` });
+  try {
+    let firstParagraph = instance.newlineList[0].flatMap(item => item.ruby.charList);
+    const originalWidth = firstParagraph.reduce((sum, char) => sum + char.originalWidth, 0);
+    instance.set({ width: originalWidth * 0.9 });
+    firstParagraph = instance.newlineList[0].flatMap(item => item.ruby.charList);
+    instance.textScale = 0.8;
+    instance.updateTextScale();
+    for (const char of firstParagraph) {
+      assert.ok(Math.abs(char.rubyLeaf.scaleX - 0.9) < 1e-8);
+      assert.equal(char.line, 0);
+    }
+    const last = firstParagraph.at(-1);
+    assert.ok(Math.abs(last.rubyLeaf.x + last.width - instance.width) < 1e-8);
+    assert.ok(instance.newlineList[1].flatMap(item => item.ruby.charList).every(char => char.rubyLeaf.scaleX === 0.8));
+  } finally {
+    instance.destroy();
+  }
+});
+
 test('automatic shrinking preserves configured scale and recovers on update', () => {
   const instance = new CompressText({ ...baseConfig, text, height: 15 });
   const fresh = new CompressText({ ...baseConfig, text: 'ABC', height: 100 });
@@ -50,6 +110,33 @@ test('automatic shrinking preserves configured scale and recovers on update', ()
   } finally {
     instance.destroy();
     fresh.destroy();
+  }
+});
+
+test('compression limits support disabling compression and reset on style changes', () => {
+  const instance = new CompressText({
+    ...baseConfig, text, height: 60, minTextScale: 1, minLineHeightScale: 1,
+  });
+  try {
+    assert.equal(instance.textScale, 1);
+    assert.equal(instance.lineHeightScale, 1);
+    assert.ok(instance.renderFontScale < 1);
+    assert.ok(instance.bounds.height <= instance.height);
+    instance.set({ minTextScale: 0.73, minLineHeightScale: 0.935 });
+    assert.ok(instance.textScale >= 0.73);
+    assert.ok(instance.lineHeightScale >= 0.935);
+    assert.ok(instance.bounds.height <= instance.height);
+    instance.set({ minTextScale: undefined, minLineHeightScale: undefined });
+    assert.equal(instance.minTextScale, 0.8);
+    assert.equal(instance.minLineHeightScale, 0.9);
+    const fresh = new CompressText({ ...baseConfig, text, height: 60 });
+    try {
+      assert.deepEqual(snapshot(instance), snapshot(fresh));
+    } finally {
+      fresh.destroy();
+    }
+  } finally {
+    instance.destroy();
   }
 });
 
