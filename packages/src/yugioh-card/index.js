@@ -41,7 +41,6 @@ export class YugiohCard extends Card {
   measuredImageAspectRatio = 1;
   isSpecialImageMask = false;
   imageRevision = 0;
-  ready = null;
 
   data = {
     language: 'sc',
@@ -114,7 +113,7 @@ export class YugiohCard extends Card {
     Object.assign(this.data, data);
     const revision = ++this.imageRevision;
     const source = this.data.image;
-    this.ready = (async () => {
+    this.ready = Promise.all([this.fontReady, (async () => {
       let aspectRatio = 1;
       let isSpecialImageMask = false;
       if (source) {
@@ -143,12 +142,14 @@ export class YugiohCard extends Card {
           aspectRatio = 1;
         }
       }
+      return { aspectRatio, isSpecialImageMask };
+    })()]).then(([, { aspectRatio, isSpecialImageMask }]) => {
       // 较早发起的检测可能较晚完成，不能覆盖新的图片或向已销毁的场景绘制。
       if (revision !== this.imageRevision || this.leafer?.destroyed) return;
       this.measuredImageAspectRatio = aspectRatio;
       this.isSpecialImageMask = isSpecialImageMask;
       this.draw();
-    })();
+    });
     return this.ready;
   }
 

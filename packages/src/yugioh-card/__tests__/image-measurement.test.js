@@ -12,6 +12,28 @@ class MeasurementCard extends YugiohCard {
   }
 }
 
+test('ready waits for fonts and image measurement together before drawing the latest data', async () => {
+  const card = new MeasurementCard({ skia });
+  await card.ready;
+  card.draws = [];
+  let finishFonts;
+  card.fontReady = new Promise(resolve => { finishFonts = resolve; });
+  let measured = false;
+  card.skia = { loadImage: async () => {
+    measured = true;
+    return { width: 50, height: 100 };
+  } };
+  const oldReady = card.setData({ image: 'portrait' });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(measured, true);
+  assert.deepEqual(card.draws, []);
+  const ready = card.setData({ image: '' });
+  assert.equal(card.ready, ready);
+  finishFonts();
+  await Promise.all([oldReady, ready]);
+  assert.deepEqual(card.draws, [{ ratio: 1, fullArt: false }]);
+});
+
 test('ready waits for skia measurement and subsequent image changes reset automatic full-art state', async () => {
   const canvas = new skia.Canvas(50, 100);
   canvas.getContext('2d').fillRect(0, 0, 50, 100);

@@ -25,6 +25,8 @@ export class Card {
   view = null;
   resourcePath = null;
   skia = null;
+  fontReady = Promise.resolve();
+  ready = null;
 
   constructor(data = {}) {
     this.view = data.view;
@@ -46,8 +48,8 @@ export class Card {
       if (isNode) {
         loadFontNode(`${this.resourcePath}${fontPath}`, this.skia); // 同步
       } else {
-        loadFontBrowser(`${this.resourcePath}${fontPath}`).then(() => { // 异步，加载完再绘制一次
-          this.draw();
+        this.fontReady = loadFontBrowser(`${this.resourcePath}${fontPath}`).catch(error => {
+          console.warn('字体加载失败，使用默认字体绘制卡片', error);
         });
       }
     }
@@ -55,7 +57,15 @@ export class Card {
 
   setData(data = {}) {
     Object.assign(this.data, data);
-    this.draw();
+    if (isNode) {
+      if (!this.leafer?.destroyed) this.draw();
+      this.ready = Promise.resolve();
+    } else {
+      this.ready = this.fontReady.then(() => {
+        if (!this.leafer?.destroyed) this.draw();
+      });
+    }
+    return this.ready;
   }
 
   initLeafer() {
