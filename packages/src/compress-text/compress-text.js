@@ -996,7 +996,8 @@ export class CompressText extends Group {
     this.removeLineLastSpace(this.currentLine);
     const fontSize = this.getCurrentFontSize();
     this.currentX = 0;
-    this.currentY += fontSize * this.lineHeight * this.lineHeightScale;
+    // 先取整行距再累加，避免小数行距在栅格化时周期性多出或少掉一个像素。
+    this.currentY += Math.round(fontSize * this.lineHeight * this.lineHeightScale);
     this.currentLine++;
   }
 

@@ -165,6 +165,29 @@ test('multiline bounds apply group scaling once after combining lines', () => {
   }
 });
 
+test('fractional line heights keep uniform pixel spacing after wrapping and compression', () => {
+  const instance = new CompressText({
+    text: '甲乙丙丁戊己庚辛壬癸'.repeat(20) + '\n甲乙\n丙丁',
+    fontFamily: 'ygo-heiti', fontSize: 18, lineHeight: 1.17,
+    letterSpacing: 0.5, width: 568, y: 766.57,
+  });
+  try {
+    for (const height of [0, 100]) {
+      instance.set({ height });
+      const lines = [...instance.rubyLineMap.values()].filter(line => line.length);
+      assert.ok(lines.length > 3);
+      if (height) assert.ok(instance.lineHeightScale < 1 || instance.renderFontScale < 1);
+      const pixelSteps = lines.slice(1).map((line, index) =>
+        Math.round(instance.y + line[0].rubyLeaf.y) - Math.round(instance.y + lines[index][0].rubyLeaf.y));
+      assert.equal(new Set(pixelSteps).size, 1);
+      assert.ok(pixelSteps[0] > 0);
+      if (height) assert.ok(instance.bounds.height <= height);
+    }
+  } finally {
+    instance.destroy();
+  }
+});
+
 test('malformed ruby stays plain without swallowing following valid ruby', () => {
   for (const malformed of ['[(abc)]', '[broken', '[甲(abc]', '[甲abc)]', '[甲(a(b)c)]', '[甲(a]b)]', '[甲\n乙(abc)]', '[甲(a\nb)]', '[甲\r乙(abc)]']) {
     const instance = new CompressText({ ...baseConfig, text: `${malformed}[乙(おつ)]` });
