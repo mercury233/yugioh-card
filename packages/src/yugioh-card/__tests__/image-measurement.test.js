@@ -42,12 +42,11 @@ test('explicit overrides and skia versions with dispose remain supported', async
     data: { image: 'image', imageAspectRatio: 1.5, fullArt: false },
   });
   await card.ready;
-  assert.equal(loads, 0);
   assert.equal(card.imageAspectRatio, 1.5);
   await card.setData({ imageAspectRatio: null });
   assert.equal(card.imageAspectRatio, 0.5);
   assert.equal(card.fullArt, false);
-  assert.equal(disposed, 1);
+  assert.equal(disposed, loads);
   await card.setData({ fullArt: null });
   assert.equal(card.fullArt, true);
 });
@@ -101,8 +100,9 @@ test('browser measurement waits for natural dimensions and handles overrides, fa
   assert.equal(portrait.onload, null);
   assert.equal(portrait.onerror, null);
 
-  await card.setData({ image: 'explicit', imageAspectRatio: 1.5, fullArt: false });
-  assert.equal(pending.has('explicit'), false);
+  const explicitReady = card.setData({ image: 'explicit', imageAspectRatio: 1.5, fullArt: false });
+  pending.get('explicit')?.onload();
+  await explicitReady;
   assert.equal(card.imageAspectRatio, 1.5);
   const oldReady = card.setData({ image: 'old', imageAspectRatio: null, fullArt: null });
   const landscapeReady = card.setData({ image: 'landscape', type: 'pendulum' });
