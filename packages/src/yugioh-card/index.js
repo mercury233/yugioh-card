@@ -39,6 +39,7 @@ export class YugiohCard extends Card {
   cardWidth = 680;
   cardHeight = 986;
   measuredImageAspectRatio = 1;
+  isSpecialImageMask = false;
   imageRevision = 0;
   ready = null;
 
@@ -115,7 +116,8 @@ export class YugiohCard extends Card {
     const source = this.data.image;
     this.ready = (async () => {
       let aspectRatio = 1;
-      if (source && this.data.imageAspectRatio == null) {
+      let isSpecialImageMask = false;
+      if (source) {
         try {
           const image = this.skia ? await this.skia.loadImage(source) : await new Promise((resolve, reject) => {
             const image = new globalThis.Image();
@@ -132,6 +134,7 @@ export class YugiohCard extends Card {
           try {
             if (image.width > 0 && image.height > 0) {
               aspectRatio = image.width / image.height;
+              isSpecialImageMask = image.width === 533 && image.height === 533;
             }
           } finally {
             image.dispose?.();
@@ -143,6 +146,7 @@ export class YugiohCard extends Card {
       // 较早发起的检测可能较晚完成，不能覆盖新的图片或向已销毁的场景绘制。
       if (revision !== this.imageRevision || this.leafer?.destroyed) return;
       this.measuredImageAspectRatio = aspectRatio;
+      this.isSpecialImageMask = isSpecialImageMask;
       this.draw();
     })();
     return this.ready;
@@ -375,12 +379,12 @@ export class YugiohCard extends Card {
 
     this.imageLeaf.set({
       url: this.data.image,
-      width: this.data.type === 'pendulum' ? 585 : 512,
-      height: this.data.type === 'pendulum' ? (this.imageAspectRatio > 1 ? 438 : 749) : 512,
-      x: this.data.type === 'pendulum' ? 48 : 85,
-      y: this.data.type === 'pendulum' ? 177 : 182,
+      width: this.isSpecialImageMask ? 533 : this.data.type === 'pendulum' ? 585 : 512,
+      height: this.isSpecialImageMask ? 533 : this.data.type === 'pendulum' ? (this.imageAspectRatio > 1 ? 438 : 749) : 512,
+      x: this.isSpecialImageMask ? 74 : this.data.type === 'pendulum' ? 48 : 85,
+      y: this.isSpecialImageMask ? 171 : this.data.type === 'pendulum' ? 177 : 182,
       visible: this.data.image,
-      zIndex: 10,
+      zIndex: this.isSpecialImageMask ? 21 : 10,
     });
   }
 
