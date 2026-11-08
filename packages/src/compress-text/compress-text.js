@@ -26,7 +26,6 @@ const noCompressText = '●①②③④⑤⑥⑦⑧⑨⑩'; // 不参与正文�
 const avoidStartChars = '.。;；:：,，、”」)）·× '; // 避免在行首的特殊字符集合。
 const avoidEndChars = '“「(（●'; // 避免在行尾的特殊字符集合。
 const compressTextScaleStep = 0.02; // 高度适配时横向压缩搜索的步长。
-const compressLineHeightScaleStep = 0.01; // 高度适配时行距缩放搜索的步长。
 const autoFontScaleMin = 0.5; // 本轮字号比例高于此阈值时允许继续缩小。
 const autoFontScaleStep = 0.05; // 自动缩小时本轮字号比例的递减步长。
 const rtLetterSpacingMaxRate = 9; // 注音拉伸时最大字距相对本轮注音字号的倍率。
@@ -640,7 +639,7 @@ export class CompressText extends Group {
   /**
    * 优化正文布局以适应高度限制。
    *
-   * 联合搜索正文横向压缩与整体行距，仍然放不下时逐步缩小本轮字号，不修改用户配置。
+   * 每档正文横向比例只计算一次换行，再根据行数直接选择能容纳的最大整数行距；仍然放不下时缩小字号。
    * 注音扩宽后的二次排版也会进入搜索；若缩小到下限仍无解，保留默认横向与行距比例。
    */
   optimizeTextToFitHeight() {
@@ -652,26 +651,24 @@ export class CompressText extends Group {
     let bestTextScale = 1;
     let bestLineHeightScale = 1;
     let bestHeight = Number.MAX_VALUE;
+    const baseLineHeight = this.getCurrentFontSize() * this.lineHeight;
+    const maxLineHeight = Math.round(baseLineHeight);
+    const minLineHeight = Math.round(baseLineHeight * this.minLineHeightScale);
 
-    // 尝试不同的文本缩放和行距缩放组合
     for (let step = 0; step <= Math.ceil((1 - this.minTextScale) / compressTextScaleStep); step++) {
       const textScale = Math.max(this.minTextScale, 1 - step * compressTextScaleStep);
-      for (let lineStep = 0; lineStep <= Math.ceil((1 - this.minLineHeightScale) / compressLineHeightScaleStep); lineStep++) {
-        const lineHeightScale = Math.max(this.minLineHeightScale, 1 - lineStep * compressLineHeightScaleStep);
-        this.textScale = textScale;
-        this.lineHeightScale = lineHeightScale;
-        this.updateTextScale();
+      this.textScale = textScale;
+      this.lineHeightScale = 1;
+      this.updateTextScale();
 
-        const currentHeight = this.currentY + lastChar.height;
-
-        if (currentHeight <= this.height) {
-          if (Math.abs(currentHeight - this.height) < Math.abs(bestHeight - this.height)) {
-            bestTextScale = textScale;
-            bestLineHeightScale = lineHeightScale;
-            bestHeight = currentHeight;
-          }
-          break; // 找到合适的行距缩放，不需要继续减小
-        }
+      const lineCount = this.currentLine + 1;
+      const lineHeight = Math.min(maxLineHeight, Math.floor(this.height / lineCount));
+      if (lineHeight < minLineHeight) continue;
+      const currentHeight = lineCount * lineHeight;
+      if (Math.abs(currentHeight - this.height) < Math.abs(bestHeight - this.height)) {
+        bestTextScale = textScale;
+        bestLineHeightScale = Math.min(1, Math.max(this.minLineHeightScale, lineHeight / baseLineHeight));
+        bestHeight = currentHeight;
       }
     }
 
@@ -865,6 +862,7 @@ export class CompressText extends Group {
 
     let noBreakCharList = [];
     let noBreakTotalWidth = 0;
+    const lineHeight = Math.round(this.getCurrentFontSize() * this.lineHeight * this.lineHeightScale);
     this.firstLineTextScale = this.width ? this.getFirstLineScale() : 1;
     // 首段能在压缩下限内独占一行时，只压到所需宽度；过长的正文段仍正常换行。
     const fitFirstParagraph = this.firstLineCompress || this.firstLineTextScale === 1 ||
@@ -887,8 +885,8 @@ export class CompressText extends Group {
             this.updateRubyScale(char, 1);
           }
 
-          // 应用行距缩放，修改 char.height 而不是 rubyLeaf.lineHeight
-          char.height = char.originalHeight * this.lineHeightScale;
+          // 末行占用高度与换行步长一致，避免相同整数行距因浮点高度得到不同适配结果。
+          char.height = lineHeight;
 
           if (rt.text) {
             noBreakCharList.push(char);

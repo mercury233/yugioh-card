@@ -275,6 +275,34 @@ test('fractional line heights keep uniform pixel spacing after wrapping and comp
   }
 });
 
+test('height fitting uses integer line boxes including the last line', () => {
+  const instance = new CompressText({
+    ...baseConfig, text: 'ABC\nDEF\nGHI', width: 300, height: 60,
+  });
+  try {
+    assert.equal(instance.renderFontScale, 1);
+    assert.equal(instance.currentLine + 1, 3);
+    assert.deepEqual([...instance.rubyLineMap.values()].map(line => line[0].rubyLeaf.y), [0, 20, 40]);
+    assert.equal(instance.bounds.height, 60);
+    for (const scale of [0.98, 0.99, 1]) {
+      instance.lineHeightScale = scale;
+      instance.updateTextScale();
+      instance.createBounds();
+      assert.equal(instance.bounds.height, 63);
+      assert.ok(instance.rubyList.every(char => char.height === 21));
+    }
+    instance.set({ height: 59 });
+    assert.equal(instance.bounds.height, 57);
+    assert.equal(instance.renderFontScale, 1);
+    instance.set({ minLineHeightScale: 1 });
+    assert.equal(instance.lineHeightScale, 1);
+    assert.ok(instance.renderFontScale < 1);
+    assert.ok(instance.bounds.height <= 59);
+  } finally {
+    instance.destroy();
+  }
+});
+
 test('malformed ruby stays plain without swallowing following valid ruby', () => {
   for (const malformed of ['[(abc)]', '[broken', '[甲(abc]', '[甲abc)]', '[甲(a(b)c)]', '[甲(a]b)]', '[甲\n乙(abc)]', '[甲(a\nb)]', '[甲\r乙(abc)]']) {
     const instance = new CompressText({ ...baseConfig, text: `${malformed}[乙(おつ)]` });
