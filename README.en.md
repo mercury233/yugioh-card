@@ -69,8 +69,10 @@ const card = new YugiohCard({
   resourcePath: 'xxx', // path to static resources, copy src/assets/yugioh-card folder to your project or server
 });
 
+// Wait for font loading and image dimension measurement before exporting
+await card.ready;
 // Export image, for more export options refer to https://www.leaferjs.com/ui/guide/basic/export.html
-card.leafer.export('xxx.png', {
+await card.leafer.export('xxx.png', {
   screenshot: true,
   pixelRatio: devicePixelRatio,
 });
@@ -80,30 +82,38 @@ card.leafer.export('xxx.png', {
 
 Before running the Node.js example, make sure your local Node.js version is 22 or higher.
 
-`pnpm add skia-canvas@4`
+`pnpm add skia-canvas`
 
 ```js
 import http from 'http';
 import skia from 'skia-canvas';
 import { YugiohCard } from 'yugioh-card';
 
-http.createServer((req, res) => {
-  const card = new YugiohCard({
-    data: {
-      ..., // see Data properties below
-    },
-    resourcePath: 'xxx', // path to static resources, copy src/assets/yugioh-card folder to your project or server
-    skia: skia,
-  });
-  card.leafer.export('png', {
-    screenshot: true,
-  }).then(result => {
+http.createServer(async (req, res) => {
+  let card;
+  try {
+    card = new YugiohCard({
+      data: {
+        ..., // see Data properties below
+      },
+      resourcePath: 'xxx', // path to static resources, copy src/assets/yugioh-card folder to your project or server
+      skia: skia,
+    });
+    await card.ready;
+    const result = await card.leafer.export('png', {
+      screenshot: true,
+    });
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.write(`<img src="${result.data}" />`);
-    res.end();
-  });
+    res.end(`<img src="${result.data}" />`);
+  } catch (error) {
+    console.error(error);
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('Failed to render card');
+  } finally {
+    card?.leafer.destroy();
+  }
 }).listen(3000, () => {
-    console.log('server is running at http://localhost:3000');
+  console.log('server is running at http://localhost:3000');
 });
 ```
 

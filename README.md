@@ -69,8 +69,10 @@ const card = new YugiohCard({
   resourcePath: 'xxx', // 静态资源路径，把 src/assets/yugioh-card 文件夹复制到你的项目中或者服务器上
 });
 
+// 导出前等待字体加载和图片尺寸测量完成
+await card.ready;
 // 导出图片，更多导出参数请参考 https://www.leaferjs.com/ui/guide/basic/export.html
-card.leafer.export('xxx.png', {
+await card.leafer.export('xxx.png', {
   screenshot: true,
   pixelRatio: devicePixelRatio,
 });
@@ -80,30 +82,38 @@ card.leafer.export('xxx.png', {
 
 运行 Node.js 示例前，请先确保本地 Node.js 版本为 22 或更高。
 
-`pnpm add skia-canvas@4`
+`pnpm add skia-canvas`
 
 ```js
 import http from 'http';
 import skia from 'skia-canvas';
 import { YugiohCard } from 'yugioh-card';
 
-http.createServer((req, res) => {
-  const card = new YugiohCard({
-    data: {
-      ..., // 参数见下方 Data 属性
-    },
-    resourcePath: 'xxx', // 静态资源路径，把 src/assets/yugioh-card 文件夹复制到你的项目中或者服务器上
-    skia: skia,
-  });
-  card.leafer.export('png', {
-    screenshot: true,
-  }).then(result => {
+http.createServer(async (req, res) => {
+  let card;
+  try {
+    card = new YugiohCard({
+      data: {
+        ..., // 参数见下方 Data 属性
+      },
+      resourcePath: 'xxx', // 静态资源路径，把 src/assets/yugioh-card 文件夹复制到你的项目中或者服务器上
+      skia: skia,
+    });
+    await card.ready;
+    const result = await card.leafer.export('png', {
+      screenshot: true,
+    });
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.write(`<img src="${result.data}" />`);
-    res.end();
-  });
+    res.end(`<img src="${result.data}" />`);
+  } catch (error) {
+    console.error(error);
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('Failed to render card');
+  } finally {
+    card?.leafer.destroy();
+  }
 }).listen(3000, () => {
-    console.log('server is running at http://localhost:3000');
+  console.log('server is running at http://localhost:3000');
 });
 ```
 
