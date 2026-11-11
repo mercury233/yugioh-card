@@ -1,4 +1,4 @@
-import { Group, Image, Rect } from '#leafer';
+import { Group, Image, Rect } from 'leafer-unified';
 import { Card } from '../card/index.js';
 import { CompressText } from '../compress-text/index.js';
 import { ThemedText } from '../text-theme/themed-text.js';

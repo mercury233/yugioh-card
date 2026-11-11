@@ -1,4 +1,4 @@
-import { Text, Image, ImageEvent, Leafer, LeaferEvent, Platform, useCanvas } from '#leafer';
+import { Text, Image, ImageEvent, Leafer, useCanvas } from 'leafer-unified';
 import { isBrowser, isNode, loadFontBrowser, loadFontNode } from '../utils/index.js';
 import loaderIconUrl from '../svg/loader.js';
 import imageIconUrl from '../svg/image.js';
@@ -39,8 +39,6 @@ export class Card {
         throw new Error('skia-canvas is required in Node environment');
       }
       useCanvas('skia', this.skia);
-      // Skia 3.0.8 的 saveAs 别名未返回 Promise，优先使用 toFile；旧版仍使用 saveAs。
-      Platform.origin.canvasSaveAs = (canvas, filename, quality) => (canvas.toFile || canvas.saveAs).call(canvas, filename, { quality });
     }
 
     const fontPath = fontPathMap[this.tag];
@@ -74,10 +72,6 @@ export class Card {
       width: this.cardWidth,
       height: this.cardHeight,
     });
-    if (isNode) {
-      // Leafer 2.3.3 会先销毁 watcher，再清空子节点；提前清空，避免 zIndex 排序更新访问已销毁的 watcher。
-      this.leafer.once(LeaferEvent.END, () => this.leafer.clear());
-    }
   }
 
   draw() {

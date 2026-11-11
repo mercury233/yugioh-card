@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { useCanvas } from '#leafer';
+import { useCanvas } from 'leafer-unified';
 import skia from 'skia-canvas';
 import { loadFontNode } from '../../utils/index.js';
 import { CompressText } from '../compress-text.js';

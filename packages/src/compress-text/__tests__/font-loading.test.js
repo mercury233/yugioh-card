@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { useCanvas } from '#leafer';
+import { useCanvas } from 'leafer-unified';
 import skia from 'skia-canvas';
 
 useCanvas('skia', skia);

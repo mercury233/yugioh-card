@@ -15,7 +15,7 @@
  * 其中，超长连续文本的处理属于布局阶段的回退逻辑，不会改变默认分词模块的基础语义。
  * 在浏览器环境中，模块还会在字体加载完成后自动重新执行一次排版，以确保测量结果准确。
  */
-import { Group, Text } from '#leafer';
+import { Group, Text } from 'leafer-unified';
 import { isBrowser } from '../utils/index.js';
 import { splitBreakWordWithBracket } from './split-break-word.js';
 

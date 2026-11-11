@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import '#leafer';
+import 'leafer-unified';
 import 'lodash-unified';
 
 // 使用 Node 的渲染依赖运行浏览器生命周期测试，不创建实际画布。
